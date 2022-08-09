@@ -3,6 +3,6 @@
   "name": "mc-dist",
   "repo": "bryanressler-idmod/git@github.com:bryanressler-idmod/mc-dist.git",
   "files": {
-    "include": ["js/microcomps.js"
+    "include": ["js/microcomps.js"]
   }
 }
