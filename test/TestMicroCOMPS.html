@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<head>
+  <title>Test MicroCOMPS</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src *;
+             font-src data: fonts.gstatic.com;
+             style-src 'self' 'unsafe-inline';
+             style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+             script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com;
+             script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+             img-src data: 'unsafe-eval' https://www.highcharts.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <style>html { box-sizing: border-box; padding: 16px}</style>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
+  <script type="module">
+    import {Auth, MicroCOMPS, DefaultLogger, BodyLogger, VERSION, log, logInfo,
+        logWarn, logError, kSim, kDefaultDevBaseUrl, humanizeToken}
+      // from "../microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    const kTestVersion = "0.1.0";       // Our tests are designed for this version
+    const kBaseUrl = "https://comps-dev.idmod.org";
+    const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
+
+    //==========================================================================
+    QUnit.module("MicroCOMPS tests");
+
+    //--------------------------------------------------------------------------
+    QUnit.test("QUnit verify", assert => {
+      assert.ok(true, "QUnit verify");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Version check", assert => {
+      assert.equal(VERSION, kTestVersion,
+        "Test version matches code version");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Default ctor", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({ autoAuth: false });
+      assert.notEqual(mc, null, "Default constructor doesn't fail");
+      assert.ok(mc.getBaseUrl().startsWith("http"),
+        "Default baseUrl available");
+      onDone();
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Options ctor", assert => {
+      let logger = "not-a-logger-but-we-can-test-for-it";
+      let options = {
+        baseUrl: "https://comps2.idmod.org",
+        autoAuth: false,
+        token: "notValidButGoodEnoughForATest"
+      };
+      let mc = new MicroCOMPS(options);
+      assert.notEqual(mc, null, "Options constructor null check");
+      assert.equal(mc.getBaseUrl(), "https://comps2.idmod.org",
+        "Custom url installed");
+      assert.equal(mc.getToken(), "notValidButGoodEnoughForATest",
+        "Token in options is adopted")
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Logger replacement in ctor", assert => {
+      class FakeLogger {
+        constructor() {
+          this.lastLog = "";
+          this.lastInfo = "";
+          this.lastWarn = "";
+          this.lastError = "";
+        }
+        log(msg) { this.lastLog = msg; }
+        logInfo(msg) { this.lastInfo = msg; }
+        logWarn(msg) { this.lastWarn = msg; }
+        logError(msg) { this.lastError = msg; }
+      }
+      let lgr = new FakeLogger();
+      let mc = new MicroCOMPS({   // Replace logger at construction (most common)
+        logger: lgr,
+        autoAuth: false,
+      });
+      assert.strictEqual(lgr, mc.getOptions().logger,
+        "Replacement logger present");
+      log("TestLog");
+      logInfo("TestInfo");
+      logWarn("TestWarn");
+      logError("TestErr");
+      assert.equal(lgr.lastLog, "TestLog",
+        "Verify ctor-replaced log function");
+      assert.equal(lgr.lastInfo, "TestInfo",
+        "Verify ctor-replaced info function");
+      assert.equal(lgr.lastWarn, "TestWarn",
+        "Verify ctor-replaced warn function");
+      assert.equal(lgr.lastError, "TestErr",
+        "Verify ctor-replaced error function");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Logger replacement post-construction", assert => {
+      class FakeLogger {
+        constructor() {
+          this.lastLog = "";
+          this.lastInfo = "";
+          this.lastWarn = "";
+          this.lastError = "";
+        }
+        log(msg) { this.lastLog = msg; }
+        logInfo(msg) { this.lastInfo = msg; }
+        logWarn(msg) { this.lastWarn = msg; }
+        logError(msg) { this.lastError = msg; }
+      }
+      let lgr = new FakeLogger();
+      let mc = new MicroCOMPS({ autoAuth: false });
+      mc.setOptions({ logger: lgr });  // Replace logger after the fact
+      assert.strictEqual(lgr, mc.getOptions().logger,
+        "Replacement logger present");
+      log("TestLog");
+      logInfo("TestInfo");
+      logWarn("TestWarn");
+      logError("TestErr");
+      assert.equal(lgr.lastLog, "TestLog",
+        "Verify post-replaced log function");
+      assert.equal(lgr.lastInfo, "TestInfo",
+        "Verify post-replaced info function");
+      assert.equal(lgr.lastWarn, "TestWarn",
+        "Verify post-replaced warn function");
+      assert.equal(lgr.lastError, "TestErr",
+        "Verify post-replaced error function");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test request() with a text target", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+        autoAuth: false
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed")
+      mc.getSimulation(kTestSimId)
+        .then(sim => mc.request(
+          sim.getFileTree().findFileRecord("./stdout.txt").Url))
+        .then(fileData => {
+          assert.equal(fileData.length, 20,
+            "File is read and contains all data");
+          onDone();
+        });
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test request() with a binary target", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+        autoAuth: false
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed")
+      mc.getSimulation(kTestSimId)
+        .then(sim => mc.request(
+          sim.getFileTree().findFileRecord("runtime/favicon.ico").Url,
+          "arraybuffer"))
+        .then(fileData => {
+          assert.ok(fileData.constructor.name === "ArrayBuffer",
+            "ArrayBuffer returned when 'arraybuffer' contentType specified")
+          assert.equal(fileData.byteLength, 99678,
+            "File is read and contains all data");
+          onDone();
+        });
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getBaseUrl()", assert => {
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      assert.ok(mc.getBaseUrl(), kBaseUrl, "baseUrl is valid");
+      assert.ok(typeof mc.getOptions().logger, "object", "Logger present");
+      mc.setOptions({ baseUrl: kDefaultDevBaseUrl });
+      assert.equal(mc.opts.baseUrl, kDefaultDevBaseUrl,
+        "Call to setOptions modifies options structure");
+      assert.ok(mc.isViable(), "Call to isViable returns true");
+      assert.equal(MicroCOMPS.getVersion(), VERSION,
+        "MicroCOMPS reports proper version");
+      assert.ok(MicroCOMPS.findBaseUrl().startsWith("http"),
+        "findBaseUrl returns a valid URL");
+      assert.notEqual(MicroCOMPS.findToken(kBaseUrl), null,
+        "findToken finds our token");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getToken()", assert => {
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      assert.notEqual(mc.getToken(), null, "Token is present");
+      assert.equal(mc.opts.token, mc.getToken(), "Token is stored in opts");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getEntityCache()", assert => {
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      assert.notEqual(mc.getEntityCache(), null, "Cache is present");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getOptions()", assert => {
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      assert.ok(typeof mc.getOptions() === "object", null,
+        "Options object returned");
+      mc.opts.token = "asdf";
+      assert.ok(mc.getOptions().token === "asdf", null,
+        "Modified option is reflected");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test setOptions()", assert => {
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      assert.ok(typeof mc.getOptions() === "object", null,
+        "Initial value is verifed");
+      mc.setOptions({token: "asdf"});
+      assert.ok(mc.getOptions().token === "asdf", null,
+        "Single modified option is reflected");
+      mc.setOptions({token: "qwer", baseUrl: "zxcv"});
+      assert.ok(mc.getOptions().token === "qwer" &&
+        mc.getOptions().baseUrl === "zxcv",
+        "Multiple modified options are reflected");
+      mc.setOptions({logger: new BodyLogger()});
+      assert.ok(mc.getOptions().logger.constructor.name === "BodyLogger",
+        "Post-init logger replacement is in options");
+      mc.setOptions({ logger: new DefaultLogger() });
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getVersion()", assert => {
+      assert.equal(MicroCOMPS.getVersion(), VERSION,
+        "MicroCOMPS reports proper version");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test isViable()", assert => {
+      let mc = new MicroCOMPS({ autoAuth: false, token: null });
+      assert.ok(mc.isViable(), "Call to isViable returns true");
+      assert.equal(MicroCOMPS.getVersion(), VERSION,
+        "MicroCOMPS reports proper version");
+      assert.ok(MicroCOMPS.findBaseUrl().startsWith("http"),
+        "findBaseUrl returns a valid URL");
+      assert.notEqual(MicroCOMPS.findToken(kBaseUrl), null,
+        "findToken finds our token");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test toString()", assert => {
+      let mc = new MicroCOMPS({ autoAuth: false, token: null });
+      assert.equal(mc.toString(),
+        `[MicroCOMPS: ${mc.opts.baseUrl}/${humanizeToken(mc.opts.token)}]`,
+        "toString() properly emits a string summary");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getSimulation()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+        autoAuth: false
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed")
+      mc.getSimulation(kTestSimId)
+        .then(sim => {
+          assert.notEqual(sim, undefined,
+            "Object returned from getSimulation");
+          assert.notEqual(sim.mc, null,
+            "Entity contains reference to MicroCOMPS");
+          assert.equal(sim.id, kTestSimId,
+            "Object returned from getSimulation");
+          assert.equal(sim.entityType, kSim,
+            "Returned entity has correct entity type");
+          assert.notEqual(sim.getInfo(), null,
+            "Simulation info is populated");
+          assert.notEqual(sim.getJob(), null,
+            "Simulation finished-job is populated");
+          assert.notEqual(sim.getFileTree(), null,
+            "Simulation file tree is populated");
+          assert.ok(
+            Object.keys(mc.getEntityCache().caches[kSim]).indexOf(sim.id) !== -1,
+            "Simulation was cached in entity cache");
+          onDone();
+        });
+    });
+
+  </script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="https://code.jquery.com/qunit/qunit-2.19.1.js"></script>
+</body>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<head>
+<!-- Use this template for making new Unit Test sections.
+     Refactor-rename "THING". -->
+<title>Test BodyLogger</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src *;
+               font-src data: fonts.gstatic.com;
+               style-src 'self' 'unsafe-inline';
+               style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
+               script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               img-src data: 'unsafe-eval' https://www.highcharts.com;">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<style>html { box-sizing: border-box; padding: 16px}</style>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
+<script type="module">
+  import {VERSION, BodyLogger, setGlobalLogger, log, logInfo, logWarn, logError}
+    // from "../microcomps.js";
+    from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+  const kTestVersion = "0.1.0";       // Our tests are designed for this version
+
+  //============================================================================
+  QUnit.module("BodyLogger tests");
+
+  //----------------------------------------------------------------------------
+  QUnit.test("QUnit verify", assert => {
+    assert.ok(true, "QUnit verify");
+  });
+
+  //----------------------------------------------------------------------------
+  QUnit.test("Version check", assert => {
+    assert.equal(VERSION, kTestVersion, "Test version matches code version");
+  });
+
+  //----------------------------------------------------------------------------
+  QUnit.test("Verify pre insertion in ctor", assert => {
+    // Ensure the logger's pre is not in place, then construct
+    let pre = document.querySelector("pre.BodyLogger");
+    if (pre) pre.remove();
+    assert.equal(document.querySelector("pre.BodyLogger"), null,
+      "pre not present before construction");
+    setGlobalLogger(new BodyLogger());
+    assert.notEqual(document.querySelector("pre.BodyLogger"), null,
+      "pre present after ctor");
+  });
+
+  //----------------------------------------------------------------------------
+  QUnit.test("Verify tolerance of existing pre", assert => {
+    // Pre-create the pre, as though someone else already installed a BodyLogger
+    let pre = document.querySelector("pre.BodyLogger");
+    if (pre) pre.remove();
+    pre = document.createElement("pre");
+    pre.classList.add("BodyLogger");
+    document.body.appendChild(pre);
+    assert.equal(document.querySelector("pre.BodyLogger"), pre,
+      "pre present before ctor");
+    setGlobalLogger(new BodyLogger());
+    assert.notEqual(document.querySelector("pre.BodyLogger"), null,
+      "pre present after ctor");
+  });
+
+  //----------------------------------------------------------------------------
+  QUnit.test("Verify logging functions", assert => {
+    let pre = document.querySelector("pre.BodyLogger");
+    log("TestLog");
+    assert.equal(pre.innerHTML, "TestLog\n", "Verify log to console");
+    logInfo("TestInfo");
+    assert.ok(pre.innerHTML.endsWith("TestInfo\n"), "Verify logInfo to console");
+    logWarn("TestWarn");
+    assert.ok(pre.innerHTML.endsWith("TestWarn\n"), "Verify logWarn to console");
+    logError("TestError");
+    assert.ok(pre.innerHTML.endsWith("TestError\n"), "Verify logError to console");
+  });
+</script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="https://code.jquery.com/qunit/qunit-2.19.1.js"></script>
+</body>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+  <title>MicroCOMPS Test Runner</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src *;
+                 font-src data: fonts.gstatic.com;
+                 style-src 'self' 'unsafe-inline';
+                 style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+                 script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
+                 img-src data: 'unsafe-eval' https://www.highcharts.com https://cdn.jsdelivr.net;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/image/favicon.ico" type="image/vnd.microsoft.icon"/>
+  <style>
+    html {
+      box-sizing: border-box;
+      padding: 16px;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    .content { display: none; }
+    body > iframe { width: 100%; height: 223px;}  /* Enuf for just the header */
+    button.run-all { font-size: 0.7em; }
+    .btn-xs, .btn-group-xs > .btn { /* Gone in Bootstrap 4, so made my own */
+      padding: 0.1rem 0.33rem;
+      font-size: 0.7rem !important;
+      border-radius: 0.2rem;
+    }
+    a.btn { margin-left: 1em; }
+    p { font-size: 0.85em; margin-bottom: 0; }
+  </style>
+  <script type="module">
+    import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
+        spinnerUp, spinnerDown, axios}
+      // from "./microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    const kBaseUrl = "https://comps-dev.idmod.org";
+    const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main";
+
+    //==========================================================================
+    // Because I change the test suite a lot and typing HTML is annoying, I am
+    // generating this page from the following data structure.
+    //==========================================================================
+    let sections = {
+      qunit: {
+        title: "Authenticated QUnit test pages",
+        showRunAllButton: true,
+        pages: [
+          { url: "qunit/TestDefaultLogger.html",
+            desc: "Test the DefaultLogger class" },
+          { url: "qunit/TestBodyLogger.html",
+            desc: "Test the BodyLogger class" },
+          { url: "qunit/TestEntity.html",
+            desc: "Test the Entity class" },
+          { url: "qunit/TestEntityCache.html",
+            desc: "Test the EntityCache class" },
+          { url: "qunit/TestFindBaseUrl.html",
+            desc: "Test findBaseUrl() in library start scenarios" },
+          { url: "qunit/TestFindToken.html",
+            desc: "Test findToken() in library start scenarios" },
+          { url: "qunit/TestFileTree.html",
+            desc: "Test the rest of the base library API" },
+          { url: "qunit/TestFindSimId.html",
+            desc: "Test findSimId() in library start scenarios" },
+          { url: "qunit/TestMicroCOMPS.html",
+            desc: "Test the rest of the base library API" },
+          { url: "qunit/TestSimulation.html",
+            desc: "Tests of Simulation with auth" },
+          { url: "qunit/TestSpinner.html",
+            desc: "Tests the IDM spinner" },
+        ],
+      },
+      adhoc: {
+        title: "Bryan's test pages",
+        showRunAllButton: false,
+        pages: [
+          { url: "Fetcher.html",
+            desc: "Fetch entity data from COMPS" },
+          { url: "Experimentation.html",
+            desc: "Bryan's experiments, often broken" },
+        ],
+      },
+      templates: {
+        title: "Templates for new pages",
+        showRunAllButton: false,
+        pages: [
+          { url: "qunit/TestTemplate.html",
+            desc: "for QUnit tests" },
+        ],
+      },
+    }
+
+    //==========================================================================
+    // App
+    //==========================================================================
+    class App {
+      constructor() {
+        this.baseUrlLabel = document.querySelector("#baseUrl");
+        this.tokenLabel = document.querySelector("#token");
+        this.statusLabel = document.querySelector("#status");
+        this.content = document.querySelector(".content");
+
+        this.token = null;
+        this.mc = null;
+
+        this.update("Starting");
+      }
+
+      //------------------------------------------------------------------------
+      init() {
+        this.token = MicroCOMPS.findToken(kBaseUrl);
+        if (!this.token) {
+          this.update(
+            "Cannot start, ambient token required. The simplest solution " +
+            "is to get a token from the JS console of an authenticated COMPS" +
+            "session, and add the URL param token=uri-encoded-token");
+        } else {
+          this.mc = new MicroCOMPS({
+            baseUrl: kBaseUrl,
+            token: this.token,
+            autoAuth: false,
+            verbose: true,
+          });
+
+          this.update("Authenticated", this.token)
+          logInfo(`AuthTestRunner.init: inited with token: ` +
+            `${humanizeToken(this.token)}`);
+          this.content.style.display = "block";
+          this.render();
+        }
+      }
+
+      //------------------------------------------------------------------------
+      basename(url) {
+        if (!url) return url;
+        let idx = url.lastIndexOf('.');
+        return idx === -1 ? url : url.substring(0, idx);
+      }
+
+      //------------------------------------------------------------------------
+      update(status, token) {
+        this.baseUrlLabel.innerHTML = kBaseUrl;
+        this.tokenLabel.innerHTML =
+          token ? humanizeToken(token) : "None";
+        this.statusLabel.innerHTML = status;
+      }
+
+      //------------------------------------------------------------------------
+      spawn(url) {
+        let iframe = document.createElement("iframe");
+        iframe.src = `${url}?token=${encodeURIComponent(this.token)}`;
+        document.body.appendChild(iframe);
+      }
+
+      //------------------------------------------------------------------------
+      render() {
+        let spinner = makeSpinnerSpan(10);
+        document.querySelector("body > h1").append(spinner);
+        spinnerUp();
+        // If we can read a test list, use that instead of the built-in list.
+        axios({ url: `${kCdnBase}/test/tests.json` })
+          .then(list => {
+            sections.qunit.pages = list;
+            delete sections.adhoc;
+            delete sections.templates;
+          })
+          .catch(ignored => {
+            logInfo("No test manifest found, using localhost test list");
+          });
+        try {
+          for (const sectionId of Object.keys(sections)) {
+            let section = sections[sectionId];
+
+            // Create the heading for the section
+            let heading = document.createElement("h4");
+            heading.textContent = section.title;
+            heading.classList.add(sectionId);
+
+            // Create the "Run all" link-button and add its handler
+            if ("showRunAllButton" in section && section.showRunAllButton) {
+              let link = document.createElement("a");
+              link.classList.add("btn", "btn-primary", "btn-xs");
+              link.textContent = "Run all"
+              link.setAttribute("data-section", sectionId);
+              link.addEventListener("click", evt => {
+                let sectionId = link.getAttribute("data-section");
+                for (const page of sections[sectionId].pages)
+                  this.spawn(page.url);
+              });
+              heading.appendChild(link);    // Goes inside the h4
+            }
+
+            // Create the list and its elements. Using reduce because 2022.
+            let list = document.createElement("ul");
+            list.innerHTML = section.pages.reduce((accum, page) => {
+              accum += `<li><a href="${page.url}">` +
+                `${this.basename(page.url)}</a> - ${page.desc}</li>`;
+              return accum;
+            }, "");
+
+            // Add the elements to the body
+            document.body.append(heading, list, document.createElement("hr"));
+          }
+        } catch (err) {
+          logError(err);
+        }
+        spinnerDown();
+      } // render
+
+    }
+
+    //==========================================================================
+    // Fire up the app object once the DOM is loaded
+    //==========================================================================
+    let gApp = null;
+    document.addEventListener("DOMContentLoaded", function() {
+      gApp = new App();
+      gApp.init();
+    });
+  </script>
+</head>
+<body>
+<h1>MicroCOMPS Test Runner &nbsp;</h1>
+<p>This page requires an authenticated COMPS session.</p>
+<p>Host: <span id="baseUrl"></span></p>
+<p>Token: <span id="token">None</span></p>
+<p>Status: <span id="status">Starting</span></p>
+<div class="content">
+  <hr>
+</div>
+</body>
