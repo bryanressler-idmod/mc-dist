@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
         content="default-src *;
-                 connect-src 'self' blob: *.cesium.com *.virtualearth.net https://code.jquery.com https://cdn.jsdelivr.net;
+                 connect-src 'self' blob: https://cdn.jsdelivr.net;
                  font-src data: fonts.gstatic.com;
                  style-src 'self' 'unsafe-inline';
                  style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
@@ -166,6 +166,7 @@
 
       //------------------------------------------------------------------------
       render() {
+        debugger;   // FIXME
         this.checkForComps();
         let spinner = makeSpinnerSpan(10);
         document.querySelector("body > h1").append(spinner);
@@ -173,6 +174,7 @@
         // If we can read a test list, use that instead of the built-in list.
         axios({ url: `${kCdnBase}/test/tests.json` })
           .then(list => {
+            logInfo("Test manifest read, using CDN tests.");
             sections.qunit.pages = list;
             delete sections.adhoc;
             delete sections.templates;
