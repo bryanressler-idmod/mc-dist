@@ -35,6 +35,7 @@
     p { font-size: 0.85em; margin-bottom: 0; }
   </style>
   <script type="module">
+    debugger;   // FIXME
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
         spinnerUp, spinnerDown, axios}
       // from "./microcomps.js";
@@ -166,13 +167,12 @@
 
       //------------------------------------------------------------------------
       render() {
-        debugger;   // FIXME
         this.checkForComps();
         let spinner = makeSpinnerSpan(10);
         document.querySelector("body > h1").append(spinner);
         spinnerUp();
         // If we can read a test list, use that instead of the built-in list.
-        axios({ url: `${kCdnBase}/test/tests.json` })
+        axios({ url: `${kCdnBase}/test/tests.txt` })
           .then(list => {
             logInfo("Test manifest read, using CDN tests.");
             sections.qunit.pages = list;
