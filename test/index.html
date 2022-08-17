@@ -10,10 +10,10 @@
                  style-src 'self' 'unsafe-inline';
                  style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
                  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
-                 img-src data: 'unsafe-eval' https://www.highcharts.com;">
+                 img-src data: 'unsafe-eval' https://www.highcharts.com https://cdn.jsdelivr.net;">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-  <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/image/favicon.ico" type="image/x-icon"/>
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/image/favicon.ico" type="image/vnd.microsoft.icon"/>
   <style>
     html {
       box-sizing: border-box;
@@ -35,10 +35,11 @@
   </style>
   <script type="module">
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
-        spinnerUp, spinnerDown}
+        spinnerUp, spinnerDown, axios}
       // from "./microcomps.js";
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
+    const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main";
 
     //==========================================================================
     // Because I change the test suite a lot and typing HTML is annoying, I am
@@ -157,7 +158,19 @@
 
       //------------------------------------------------------------------------
       render() {
+        let spinner = makeSpinnerSpan(10);
+        document.querySelector("body > h1").append(spinner);
         spinnerUp();
+        // If we can read a test list, use that instead of the built-in list.
+        axios({ url: `${kCdnBase}/test/tests.json` })
+          .then(list => {
+            sections.qunit.pages = list;
+            delete sections.adhoc;
+            delete sections.templates;
+          })
+          .catch(ignored => {
+            logInfo("No test manifest found, using localhost test list");
+          });
         try {
           for (const sectionId of Object.keys(sections)) {
             let section = sections[sectionId];
@@ -211,7 +224,7 @@
   </script>
 </head>
 <body>
-<h1>MicroCOMPS Test Runner</h1>
+<h1>MicroCOMPS Test Runner &nbsp;</h1>
 <p>This page requires an authenticated COMPS session.</p>
 <p>Host: <span id="baseUrl"></span></p>
 <p>Token: <span id="token">None</span></p>
