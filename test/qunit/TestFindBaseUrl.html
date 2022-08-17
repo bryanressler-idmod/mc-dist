@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<head>
+  <!-- Use this template for making new Unit Test sections.
+       Refactor-rename "THING". -->
+  <title>Test findBaseUrl</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src *;
+           font-src data: fonts.gstatic.com;
+           style-src 'self' 'unsafe-inline';
+           style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
+           script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+           img-src data: 'unsafe-eval' https://www.highcharts.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <style>html { box-sizing: border-box; padding: 16px}</style>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
+  <script type="module">
+    import {MicroCOMPS, VERSION}
+      // from "../microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    const kTestVersion = "0.1.0";   // Our tests are designed for this version
+
+    //==========================================================================
+    QUnit.module("MicroCOMPS.findBaseUrl() tests");
+
+    //--------------------------------------------------------------------------
+    QUnit.test("QUnit verify", assert => {
+      assert.ok(true, "QUnit verify");
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Version check", assert => {
+      assert.equal(VERSION, kTestVersion, "Test version matches code version");
+    });
+
+    //--------------------------------------------------------------------------
+    // We can't test Case 1 (no window, running in Node) from here
+    QUnit.test("Test baseUrl as URL param", assert => {
+      const onDone = assert.async();
+      // Case 2: If the baseUrl was provided as an URL param, use that
+
+      // Here we add a search param to our own URL (which thankfully will be
+      // ignored by QUnit) to test baseUrl=xxx on the URL.
+      const params = new URLSearchParams(window.location.search);
+      const kTestUrl = "https://comps2.idmod.org";
+      params.set("baseUrl", kTestUrl);
+      // Obscure: The following changes our URL without navigating
+      window.history.replaceState(null, null, `?${params.toString()}`);
+      assert.true(params.has("baseUrl"), "Test baseUrl inserted into href");
+      assert.equal(params.get("baseUrl"), kTestUrl, "Test baseUrl param value");
+      assert.equal(MicroCOMPS.findBaseUrl(), kTestUrl,
+        "Test findBaseUrl() returns expected baseUrl");
+      onDone();
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test baseUrl derived from window.location", assert => {
+      // Case 3: Nothing specified, so conjure a baseUrl based on window.location
+      const onDone = assert.async();
+      const expected = `${window.location.protocol}//comps-dev.idmod.org`;
+      window.history.replaceState(null, null, "?");
+      let params = new URLSearchParams(window.location.search);
+      assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
+      let baseUrl = MicroCOMPS.findBaseUrl();
+      assert.equal(baseUrl, expected, "Test findBaseUrl returns expected baseUrl");
+      onDone();
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test default baseUrl", assert => {
+      // Case 4: We tried everything we can think of, default to prod.
+      const onDone = assert.async();
+      let params = new URLSearchParams(window.location.search);
+      let expected1 = "https://comps.idmod.org";
+      let expected2 = `${window.location.protocol}//comps-dev.idmod.org`;
+      assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
+      assert.true(window.location.hostname === "1.0.0.1" ||
+                  window.location.hostname === "localhost",
+        "Test running on localhost");
+      let baseUrl = MicroCOMPS.findBaseUrl();
+      assert.true(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
+      onDone();
+    });
+  </script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="https://code.jquery.com/qunit/qunit-2.19.1.js"></script>
+</body>
