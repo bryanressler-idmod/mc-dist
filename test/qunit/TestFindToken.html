@@ -2,7 +2,7 @@
 <head>
   <!-- Use this template for making new Unit Test sections.
        Refactor-rename "THING". -->
-  <title>Test findToken</title>
+  <title>Test findToken, findAnyToken</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
@@ -27,7 +27,7 @@
     const kTestToken = "1,Auth,bressler,10.24.14.11,p-5wwHRZLd7niPlE9NLYMUyiX2VrCzvjgwC4O-Zm_I8.,IDMSPAPP01,2022-07-20-21-52-07,2028-07-20-17-52-07,lXDoTZMlHXHjeieD9EKPDOsNPex2NfN9wvjKzr4meJA.,TokenService.Post,WKpJHD1IG+R6Cq21PZns8jFQ7XWYx/smuq8oGpm5QBY=,bressler@idmod.org,2dAwrjFWrh74pzgFvQAslnSVNQv44RSzGlAH-upFAk0.,o75caiwW2nT1nLqEuDDG-Ck9M0r-kEHvfwSOKpTcMGk.,b56c6080-3187-42bf-9bd3-c69a21624bf3,1,11,,,$aoJ2Vbc13B5l5CVXRmUZrVfotTwIijfS6CyeNXvlGD0=";
 
     //==========================================================================
-    QUnit.module("MicroCOMPS.findToken() tests");
+    QUnit.module("MicroCOMPS.findToken() and findAnyToken() tests");
 
     //--------------------------------------------------------------------------
     QUnit.test("QUnit verify", assert => {
@@ -41,7 +41,7 @@
 
     //--------------------------------------------------------------------------
     // We can't test Case 1 here.
-    QUnit.test("Test findAnyToken() as URL param", assert => {
+    QUnit.test("Test findToken() as URL param", assert => {
       const onDone = assert.async();
       // Case 2: If the token was provided as an URL param, use that
 
@@ -119,41 +119,14 @@
     });
 
     //--------------------------------------------------------------------------
-    // We can't test Case 1 here.
-    QUnit.test("Test findAnyToken as URL param", assert => {
-      const onDone = assert.async();
-      // Case 2: If the token was provided as an URL param, use that
-
-      // Here we add a search param to our own URL (which thankfully will be
-      // ignored by QUnit) to test token=xxx on the URL. kTestToken is a
-      // long-expired but prototypical COMPS token.
-      const params = new URLSearchParams(window.location.search);
-      params.set("token", encodeURIComponent(kTestToken));
-      // Obscure: The following changes our URL without navigating
-      window.history.replaceState(null, null, `?${params.toString()}`);
-      assert.true(params.has("token"), "Test token token into href");
-      assert.equal(decodeURIComponent(params.get("token")), kTestToken,
-        "Test token param value");
-      assert.equal(MicroCOMPS.findAnyToken(), kTestToken,  // Returns test token
-        "Test findToken() returns expected token");
-      onDone();
-    });
-
-    //--------------------------------------------------------------------------
-    QUnit.test("Test findAnyToken() in cookie", assert => {
+    QUnit.test("Test findAnyToken()", assert => {
       // Case 3: If there's a COMPS cookie, use that token
 
-      // Make sure there's nothing in the URL, since that has higher priority
-      // than the cookie.
-      const params = new URLSearchParams(window.location.search);
-      params.delete("token");
-      // Obscure: The following changes our URL without navigating
-      window.history.replaceState(null, null, `?${params.toString()}`);
-
-      // Now install a prototypical COMPS cookie to test extraction. The code
-      // looks for the Token-<host> cookie entry.
+      // Install a prototypical COMPS cookie to test extraction. The code looks
+      // for Token-<host> cookie entries in a specific order, and takes the
+      // viable token it finds, and null if none are found.
       const host = "localhost:41523";
-      const key = `Token-${host}`;
+      const key = `Token-${host.replace(':','.')}`;
       let baseUrl;
       Cookies.set(key, kTestToken, "default");
       let token = Cookies.get(kCookieKey);
