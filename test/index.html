@@ -114,12 +114,9 @@
 
       //------------------------------------------------------------------------
       init() {
-        this.token = MicroCOMPS.findToken(kBaseUrl);
+        this.token = MicroCOMPS.findToken();    // leave off baseurl b/c localhost
         if (!this.token) {
-          this.update(
-            "Cannot start, ambient token required. The simplest solution " +
-            "is to get a token from the JS console of an authenticated COMPS" +
-            "session, and add the URL param token=uri-encoded-token");
+          this.update("Cannot start, ambient token required.");
         } else {
           this.mc = new MicroCOMPS({
             baseUrl: kBaseUrl,
@@ -128,7 +125,7 @@
             verbose: true,
           });
 
-          this.update("Authenticated", this.token)
+          this.update("Authenticated", this.token);
           logInfo(`AuthTestRunner.init: inited with token: ` +
             `${humanizeToken(this.token)}`);
           this.content.style.display = "block";
@@ -197,7 +194,7 @@
               link.classList.add("btn", "btn-primary", "btn-xs");
               link.textContent = "Run all"
               link.setAttribute("data-section", sectionId);
-              link.addEventListener("click", evt => {
+              link.addEventListener("click", () => {
                 let sectionId = link.getAttribute("data-section");
                 for (const page of sections[sectionId].pages)
                   this.spawn(page.url);

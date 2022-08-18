@@ -41,7 +41,7 @@
 
     //--------------------------------------------------------------------------
     // We can't test Case 1 here.
-    QUnit.test("Test findToken as URL param", assert => {
+    QUnit.test("Test findAnyToken() as URL param", assert => {
       const onDone = assert.async();
       // Case 2: If the token was provided as an URL param, use that
 
@@ -61,7 +61,7 @@
     });
 
     //--------------------------------------------------------------------------
-    QUnit.test("Test findToken in cookie", assert => {
+    QUnit.test("Test findToken() in cookie", assert => {
       // Case 3: If there's a COMPS cookie, use that token
 
       // Make sure there's nothing in the URL, since that has higher priority
@@ -82,11 +82,11 @@
       assert.equal(token.substring(0, 60), kTestToken.substring(0, 60),
         "Installed token value with encode/decode");
       token = MicroCOMPS.findToken();
-      assert.equal(token, null, "findToken rejects non-viable token");
+      assert.equal(token, null, "findToken() rejects non-viable token");
     });
 
     //--------------------------------------------------------------------------
-    QUnit.test("Test findToken default result", assert => {
+    QUnit.test("Test findToken() default result", assert => {
       // Case 4: We tried everything, return null for the token.
       function removeCookie(key, path, domain) {
         try {
@@ -117,6 +117,54 @@
       });
 
     });
+
+    //--------------------------------------------------------------------------
+    // We can't test Case 1 here.
+    QUnit.test("Test findAnyToken as URL param", assert => {
+      const onDone = assert.async();
+      // Case 2: If the token was provided as an URL param, use that
+
+      // Here we add a search param to our own URL (which thankfully will be
+      // ignored by QUnit) to test token=xxx on the URL. kTestToken is a
+      // long-expired but prototypical COMPS token.
+      const params = new URLSearchParams(window.location.search);
+      params.set("token", encodeURIComponent(kTestToken));
+      // Obscure: The following changes our URL without navigating
+      window.history.replaceState(null, null, `?${params.toString()}`);
+      assert.true(params.has("token"), "Test token token into href");
+      assert.equal(decodeURIComponent(params.get("token")), kTestToken,
+        "Test token param value");
+      assert.equal(MicroCOMPS.findAnyToken(), kTestToken,  // Returns test token
+        "Test findToken() returns expected token");
+      onDone();
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test findAnyToken() in cookie", assert => {
+      // Case 3: If there's a COMPS cookie, use that token
+
+      // Make sure there's nothing in the URL, since that has higher priority
+      // than the cookie.
+      const params = new URLSearchParams(window.location.search);
+      params.delete("token");
+      // Obscure: The following changes our URL without navigating
+      window.history.replaceState(null, null, `?${params.toString()}`);
+
+      // Now install a prototypical COMPS cookie to test extraction. The code
+      // looks for the Token-<host> cookie entry.
+      const host = "localhost:41523";
+      const key = `Token-${host}`;
+      let baseUrl;
+      Cookies.set(key, kTestToken, "default");
+      let token = Cookies.get(kCookieKey);
+      // Test the front of the cookie since there are dates, etc. further into
+      // the cookie data that will be different.
+      assert.equal(token.substring(0, 60), kTestToken.substring(0, 60),
+        "Installed token value with encode/decode");
+      [baseUrl, token] = MicroCOMPS.findAnyToken();
+      assert.equal(token, null, "findAnyToken() rejects non-viable token");
+    });
+
   </script>
 </head>
 <body>
