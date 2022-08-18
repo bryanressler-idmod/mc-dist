@@ -38,8 +38,8 @@
     debugger;   // FIXME
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
         spinnerUp, spinnerDown, axios}
-      // from "./microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+      from "./microcomps.js";
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main";
 
@@ -106,6 +106,7 @@
         this.statusLabel = document.querySelector("#status");
         this.content = document.querySelector(".content");
 
+        this.baseUrl = kBaseUrl;
         this.token = null;
         this.mc = null;
 
@@ -114,18 +115,18 @@
 
       //------------------------------------------------------------------------
       init() {
-        this.token = MicroCOMPS.findToken();    // leave off baseurl b/c localhost
+        [this.baseUrl, this.token] = MicroCOMPS.findAnyToken();
         if (!this.token) {
           this.update("Cannot start, ambient token required.");
         } else {
           this.mc = new MicroCOMPS({
-            baseUrl: kBaseUrl,
+            baseUrl: baseUrl,
             token: this.token,
             autoAuth: false,
             verbose: true,
           });
 
-          this.update("Authenticated", this.token);
+          this.update(`Authenticated on ${baseUrl}`, this.token);
           logInfo(`AuthTestRunner.init: inited with token: ` +
             `${humanizeToken(this.token)}`);
           this.content.style.display = "block";
@@ -159,7 +160,11 @@
       checkForComps() {
         window.addEventListener("message",
           event => { console.log("this child has been heard!", event); });
-        parent.postMessage({getter:"comps.modules.explore.getSelection", args:null, observer:window.location.href},"*");
+        parent.postMessage({
+          getter: "comps.modules.explore.getTokenAsync",
+          args: null,
+          observer: window.location.href
+        }, "*");
       }
 
       //------------------------------------------------------------------------
