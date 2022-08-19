@@ -6,12 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
         content="default-src *;
-                 connect-src 'self' blob: https://cdn.jsdelivr.net;
-                 font-src data: fonts.gstatic.com;
-                 style-src 'self' 'unsafe-inline';
-                 style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
-                 script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
-                 img-src 'self' blob: data: 'unsafe-eval' *.arcgisonline.com *.cesium.com https://www.highcharts.com https://cdn.jsdelivr.net;">
+               frame-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               connect-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               font-src data: fonts.gstatic.com https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               img-src data: 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://www.highcharts.com;">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   <link rel="icon" href="https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/image/favicon.ico" type="image/vnd.microsoft.icon"/>
@@ -36,7 +38,7 @@
   </style>
   <script type="module">
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
-        spinnerUp, spinnerDown, axios}
+        spinnerUp, spinnerDown, inIFrame, stopEvent}
       // from "./microcomps.js";
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
@@ -51,28 +53,28 @@
         title: "Authenticated QUnit test pages",
         showRunAllButton: true,
         pages: [
-          { url: "qunit/TestDefaultLogger.html",
-            desc: "Test the DefaultLogger class" },
-          { url: "qunit/TestBodyLogger.html",
-            desc: "Test the BodyLogger class" },
-          { url: "qunit/TestEntity.html",
-            desc: "Test the Entity class" },
-          { url: "qunit/TestEntityCache.html",
-            desc: "Test the EntityCache class" },
-          { url: "qunit/TestFindBaseUrl.html",
-            desc: "Test findBaseUrl() in library start scenarios" },
-          { url: "qunit/TestFindToken.html",
-            desc: "Test findToken() in library start scenarios" },
-          { url: "qunit/TestFileTree.html",
-            desc: "Test the rest of the base library API" },
-          { url: "qunit/TestFindSimId.html",
-            desc: "Test findSimId() in library start scenarios" },
-          { url: "qunit/TestMicroCOMPS.html",
-            desc: "Test the rest of the base library API" },
+          // { url: "qunit/TestDefaultLogger.html",
+          //   desc: "Test the DefaultLogger class" },
+          // { url: "qunit/TestBodyLogger.html",
+          //   desc: "Test the BodyLogger class" },
+          // { url: "qunit/TestEntity.html",
+          //   desc: "Test the Entity class" },
+          // { url: "qunit/TestEntityCache.html",
+          //   desc: "Test the EntityCache class" },
+          // { url: "qunit/TestFindBaseUrl.html",
+          //   desc: "Test findBaseUrl() in library start scenarios" },
+          // { url: "qunit/TestFindToken.html",
+          //   desc: "Test findToken() in library start scenarios" },
+          // { url: "qunit/TestFileTree.html",
+          //   desc: "Test the rest of the base library API" },
+          // { url: "qunit/TestFindSimId.html",
+          //   desc: "Test findSimId() in library start scenarios" },
+          // { url: "qunit/TestMicroCOMPS.html",
+          //   desc: "Test the rest of the base library API" },
           { url: "qunit/TestSimulation.html",
             desc: "Tests of Simulation with auth" },
-          { url: "qunit/TestSpinner.html",
-            desc: "Tests the IDM spinner" },
+          // { url: "qunit/TestSpinner.html",
+          //   desc: "Tests the IDM spinner" },
         ],
       },
       adhoc: {
@@ -104,6 +106,7 @@
         this.tokenLabel = document.querySelector("#token");
         this.statusLabel = document.querySelector("#status");
         this.content = document.querySelector(".content");
+        this.cdnSwitch = document.querySelector(".cdn");
 
         this.baseUrl = kBaseUrl;
         this.token = null;
@@ -114,9 +117,11 @@
 
       //------------------------------------------------------------------------
       init() {
+        let self = this;
         [this.baseUrl, this.token] = MicroCOMPS.findAnyToken();
         if (!this.token) {
-          this.update("Cannot start, ambient token required.");
+          this.update("<span style='color: red; font-weight: bold'>" +
+            "Cannot start, ambient token required.</span>");
         } else {
           this.mc = new MicroCOMPS({
             baseUrl: this.baseUrl,
@@ -124,6 +129,20 @@
             autoAuth: false,
             verbose: true,
           });
+
+          let spinner = makeSpinnerSpan(10);
+          document.querySelector("body > h1").append(spinner);
+
+          document.querySelector("a.reload").addEventListener("click",
+            (evt) => {
+              stopEvent(evt);
+              window.location.reload();
+            }
+          )
+
+          this.cdnSwitch.checked = inIFrame();
+          this.cdnSwitch.addEventListener("change",
+            () => self.render());
 
           this.update(`Authenticated on ${this.baseUrl}`, this.token);
           logInfo(`AuthTestRunner.init: inited with token: ` +
@@ -150,8 +169,6 @@
 
       //------------------------------------------------------------------------
       spawn(url) {
-        const cdn = document.querySelector("input.cdn").checked;
-        if (cdn) url = `${kCdnBase}/test/${url}`;
         let iframe = document.createElement("iframe");
         iframe.src = `${url}?token=${encodeURIComponent(this.token)}`;
         document.body.appendChild(iframe);
@@ -172,10 +189,9 @@
       //------------------------------------------------------------------------
       render() {
         let self = this;
-        this.checkForComps();
-        let spinner = makeSpinnerSpan(10);
-        document.querySelector("body > h1").append(spinner);
         spinnerUp();
+        //if (cdn) url = `${kCdnBase}/test/${url}`;
+        this.content.innerHTML = "<hr>";
         try {
           for (const sectionId of Object.keys(sections)) {
             let section = sections[sectionId];
@@ -192,23 +208,25 @@
               link.textContent = "Run all"
               link.setAttribute("data-section", sectionId);
               link.addEventListener("click", () => {
+                const cdn = document.querySelector("input.cdn").checked;
                 let sectionId = link.getAttribute("data-section");
                 for (const page of sections[sectionId].pages)
-                  self.spawn(page.url);
+                  self.spawn(cdn ? `${kCdnBase}/${page.url}` : page.url);
               });
               heading.appendChild(link);    // Goes inside the h4
             }
 
             // Create the list and its elements. Using reduce because 2022.
             let list = document.createElement("ul");
+            const cdn = document.querySelector("input.cdn").checked;
             list.innerHTML = section.pages.reduce((accum, page) => {
-              accum += `<li><a href="${page.url}">` +
+              accum += `<li><a href="${cdn ? kCdnBase + "/" : ""}${page.url}">` +
                 `${self.basename(page.url)}</a> - ${page.desc}</li>`;
               return accum;
             }, "");
 
             // Add the elements to the body
-            document.body.append(heading, list, document.createElement("hr"));
+            this.content.append(heading, list, document.createElement("hr"));
           }
         } catch (err) {
           logError(err);
@@ -230,12 +248,19 @@
 </head>
 <body>
 <h1>MicroCOMPS Test Runner &nbsp;</h1>
-<p>This page requires an authenticated COMPS session.</p>
+<p>This page requires an authenticated COMPS session. If you see
+  &quot;cannot start&quot; below, log into COMPS
+  (<a href="https:comps.idmod.org" target="_blank">prod</a>,
+  <a href="https://comps2.idmod.org" target="_blank">stage</a>,
+  <a href="https://comps-dev.idmod.org", target="_blank">dev</a>)
+  from another tab of this browser, then <a class="reload" href="#">reload</a>
+  this page.
+</p>
 <p>Host: <span id="baseUrl"></span></p>
 <p>Token: <span id="token">None</span></p>
 <p>Status: <span id="status">Starting</span></p>
 <div class="form-check form-switch">
-  <input class="form-check-input cdn" type="checkbox" id="cdn" checked>
+  <input class="form-check-input cdn" type="checkbox" id="cdn">
   <label class="form-check-label" for="cdn"><small>Use cdn</small></label>
 </div>
 <div class="content">

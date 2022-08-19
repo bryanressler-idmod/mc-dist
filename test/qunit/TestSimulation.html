@@ -7,12 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
         content="default-src *;
-           font-src data: fonts.gstatic.com;
-           style-src 'self' 'unsafe-inline';
-           style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
-           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
-           script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
-           img-src data: 'unsafe-eval' https://www.highcharts.com;">
+               frame-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               connect-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               font-src data: fonts.gstatic.com https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               img-src data: 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://www.highcharts.com;">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   <style>html { box-sizing: border-box; padding: 16px}</style>
@@ -21,7 +23,9 @@
     import {MicroCOMPS, Entity, VERSION, generateGuid}
       // from "../microcomps.js"
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    import {kSim} from "../microcomps";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
+    const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
     const kBaseUrl = "https://comps-dev.idmod.org";
 
     let token = null;
@@ -55,6 +59,25 @@
       assert.true(true, ent.mc === mc, "MicroCOMPS reference installed");
       assert.true(true, ent.id === id, "entity id installed");
       assert.true(true, ent.entityType === "Simulations", "entity type installed");
+    });
+
+    //------------------------------------------------------------------------
+    QUnit.test("Test Simulation", assert => {
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+        token: token,
+        autoAuth: false,
+        simId: kTestSimId,
+      });
+      assert.true(mc.getEntityCache().has(kSim, kTestSimId),
+        "Cache has initial sim");
+      let sim = mc.getEntityCache().get(kSim, kTestSimId);
+      assert.true(true, sim.mc === mc, "MicroCOMPS reference installed");
+      assert.equal(sim.entityType, kSim, "Sim's entry has proper entity type");
+      assert.notEqual(sim, undefined, "Sim reference available from cache");
+      assert.notEqual(sim.info, null, "Sim info is populated");
+      assert.notEqual(sim.job, null, "Sim job is populated");
+      assert.notEqual(sim.tree, null, "Sim tree is populated");
     });
 
   </script>

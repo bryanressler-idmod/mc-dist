@@ -7,12 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
         content="default-src *;
-           font-src data: fonts.gstatic.com;
-           style-src 'self' 'unsafe-inline';
-           style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
-           script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
-           script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
-           img-src data: 'unsafe-eval' https://www.highcharts.com;">
+               frame-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               connect-src 'self' blob: https://code.jquery.com https://cdn.jsdelivr.net;
+               font-src data: fonts.gstatic.com https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               style-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               script-src-elem 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net;
+               img-src data: 'unsafe-eval' https://code.jquery.com https://cdn.jsdelivr.net https://www.highcharts.com;">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   <style>html { box-sizing: border-box; padding: 16px}</style>
@@ -23,6 +25,7 @@
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     kTestVersion = "0.1.0";       // Our tests are designed for this version
 
+    //==========================================================================
     QUnit.module("Template tests");
 
     QUnit.test("QUnit verify", assert => {
