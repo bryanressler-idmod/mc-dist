@@ -150,6 +150,8 @@
 
       //------------------------------------------------------------------------
       spawn(url) {
+        const cdn = document.querySelector("input.cdn").checked;
+        if (cdn) url = `${kCdnBase}/test/${url}`;
         let iframe = document.createElement("iframe");
         iframe.src = `${url}?token=${encodeURIComponent(this.token)}`;
         document.body.appendChild(iframe);
@@ -232,6 +234,10 @@
 <p>Host: <span id="baseUrl"></span></p>
 <p>Token: <span id="token">None</span></p>
 <p>Status: <span id="status">Starting</span></p>
+<div class="form-check form-switch">
+  <input class="form-check-input cdn" type="checkbox" id="cdn" checked>
+  <label class="form-check-label" for="cdn"><small>Use cdn</small></label>
+</div>
 <div class="content">
   <hr>
 </div>
