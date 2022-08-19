@@ -37,8 +37,8 @@
   <script type="module">
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
         spinnerUp, spinnerDown, axios}
-      from "./microcomps.js";
-      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+      // from "./microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main";
 
@@ -119,7 +119,7 @@
           this.update("Cannot start, ambient token required.");
         } else {
           this.mc = new MicroCOMPS({
-            baseUrl: baseUrl,
+            baseUrl: this.baseUrl,
             token: this.token,
             autoAuth: false,
             verbose: true,
@@ -157,8 +157,9 @@
 
       //------------------------------------------------------------------------
       checkForComps() {
-        window.addEventListener("message",
-          event => { console.log("this child has been heard!", event); });
+        window.addEventListener("message", event => {
+          console.log("Message callback", event);
+        });
         parent.postMessage({
           getter: "comps.modules.explore.getTokenAsync",
           args: null,
@@ -168,21 +169,11 @@
 
       //------------------------------------------------------------------------
       render() {
+        let self = this;
         this.checkForComps();
         let spinner = makeSpinnerSpan(10);
         document.querySelector("body > h1").append(spinner);
         spinnerUp();
-        // If we can read a test list, use that instead of the built-in list.
-        axios({ url: `${kCdnBase}/test/tests.txt` })
-          .then(list => {
-            logInfo("Test manifest read, using CDN tests.");
-            sections.qunit.pages = list;
-            delete sections.adhoc;
-            delete sections.templates;
-          })
-          .catch(ignored => {
-            logInfo("No test manifest found, using localhost test list");
-          });
         try {
           for (const sectionId of Object.keys(sections)) {
             let section = sections[sectionId];
@@ -201,7 +192,7 @@
               link.addEventListener("click", () => {
                 let sectionId = link.getAttribute("data-section");
                 for (const page of sections[sectionId].pages)
-                  this.spawn(page.url);
+                  self.spawn(page.url);
               });
               heading.appendChild(link);    // Goes inside the h4
             }
@@ -210,7 +201,7 @@
             let list = document.createElement("ul");
             list.innerHTML = section.pages.reduce((accum, page) => {
               accum += `<li><a href="${page.url}">` +
-                `${this.basename(page.url)}</a> - ${page.desc}</li>`;
+                `${self.basename(page.url)}</a> - ${page.desc}</li>`;
               return accum;
             }, "");
 
