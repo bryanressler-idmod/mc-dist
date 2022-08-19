@@ -125,7 +125,7 @@
             verbose: true,
           });
 
-          this.update(`Authenticated on ${baseUrl}`, this.token);
+          this.update(`Authenticated on ${this.baseUrl}`, this.token);
           logInfo(`AuthTestRunner.init: inited with token: ` +
             `${humanizeToken(this.token)}`);
           this.content.style.display = "block";
