@@ -24,8 +24,8 @@
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
     import {MicroCOMPS, Entity, VERSION, generateGuid, kSim}
-      // from "../microcomps.js"
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+      from "../microcomps.js"
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
     const kBaseUrl = "https://comps-dev.idmod.org";
@@ -59,9 +59,9 @@
       });
       let id = generateGuid();
       let ent = new Entity(mc, id, "Simulations");
-      assert.true(ent.mc === mc, "MicroCOMPS reference installed");
-      assert.true(ent.id === id, "entity id installed");
-      assert.true(ent.entityType === "Simulations", "entity type installed");
+      assert.equal(ent.mc, mc, "MicroCOMPS reference installed");
+      assert.equal(ent.id, id, "entity id installed");
+      assert.equal(ent.entityType, "Simulations", "entity type installed");
     });
 
     //--------------------------------------------------------------------------
@@ -75,7 +75,8 @@
       assert.true(mc.getEntityCache().has(kSim, kTestSimId),
         "Cache has initial sim");
       let sim = mc.getEntityCache().get(kSim, kTestSimId);
-      assert.true(true, sim.mc === mc, "MicroCOMPS reference installed");
+      assert.notEqual(sim, undefined, "Sim can be obtained from the cache")
+      assert.equal(sim.mc, mc, "MicroCOMPS reference installed");
       assert.equal(sim.entityType, kSim, "Sim's entry has proper entity type");
       assert.notEqual(sim, undefined, "Sim reference available from cache");
       assert.notEqual(sim.info, null, "Sim info is populated");
