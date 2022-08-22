@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <head>
-  <!-- Use this template for making new Unit Test sections.
-       Refactor-rename "THING". -->
   <title>Test findToken, findAnyToken</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -130,8 +128,10 @@
       let baseUrl;
       Cookies.set(key, kTestToken, "default");
       let token = Cookies.get(kCookieKey);
+      debugger;   // FIXME
       // Test the front of the cookie since there are dates, etc. further into
       // the cookie data that will be different.
+      assert.notEqual(token, undefined, "Ensure cookie is retrievable")
       assert.equal(token.substring(0, 60), kTestToken.substring(0, 60),
         "Installed token value with encode/decode");
       [baseUrl, token] = MicroCOMPS.findAnyToken();
