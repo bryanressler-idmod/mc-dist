@@ -54,7 +54,7 @@
       params.set("baseUrl", kTestUrl);
       // Obscure: The following changes our URL without navigating
       window.history.replaceState(null, null, `?${params.toString()}`);
-      assert.true(params.has("baseUrl"), "Test baseUrl inserted into href");
+      assert.ok(params.has("baseUrl"), "Test baseUrl inserted into href");
       assert.equal(params.get("baseUrl"), kTestUrl, "Test baseUrl param value");
       assert.equal(MicroCOMPS.findBaseUrl(), kTestUrl,
         "Test findBaseUrl() returns expected baseUrl");
@@ -82,11 +82,11 @@
       let expected1 = "https://comps.idmod.org";
       let expected2 = `${window.location.protocol}//comps-dev.idmod.org`;
       assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
-      assert.true(window.location.hostname === "1.0.0.1" ||
+      assert.ok(window.location.hostname === "1.0.0.1" ||
                   window.location.hostname === "localhost",
         "Test running on localhost");
       let baseUrl = MicroCOMPS.findBaseUrl();
-      assert.true(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
+      assert.ok(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
       onDone();
     });
   </script>

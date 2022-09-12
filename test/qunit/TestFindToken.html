@@ -50,7 +50,7 @@
       params.set("token", encodeURIComponent(kTestToken));
       // Obscure: The following changes our URL without navigating
       window.history.replaceState(null, null, `?${params.toString()}`);
-      assert.true(params.has("token"), "Test token token into href");
+      assert.ok(params.has("token"), "Test token token into href");
       assert.equal(decodeURIComponent(params.get("token")), kTestToken,
         "Test token param value");
       assert.equal(MicroCOMPS.findToken(), kTestToken,  // Returns (stale) token

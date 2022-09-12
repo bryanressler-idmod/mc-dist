@@ -23,9 +23,9 @@
   <style>html { box-sizing: border-box; padding: 16px}</style>
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
-    import {MicroCOMPS, Entity, VERSION, generateGuid, kSim}
-      from "../microcomps.js"
-      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    import {MicroCOMPS, Entity, VERSION, generateGuid, kSim, Simulation}
+      from "../microcomps.js"   // FIXME
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist/js/microcomps.js";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
     const kBaseUrl = "https://comps-dev.idmod.org";
@@ -65,23 +65,65 @@
     });
 
     //--------------------------------------------------------------------------
-    QUnit.test("Test Simulation via initial sim id", assert => {
+    QUnit.test("Test Simulation by manual new/populate()", assert => {
+      const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
         autoAuth: false,
-        simId: kTestSimId,
       });
-      assert.true(mc.getEntityCache().has(kSim, kTestSimId),
-        "Cache has initial sim");
-      let sim = mc.getEntityCache().get(kSim, kTestSimId);
-      assert.notEqual(sim, undefined, "Sim can be obtained from the cache")
+      let ec = mc.getEntityCache();
+      assert.equal(ec.count().total, 0, "Cache is initially empty");
+      let sim = new Simulation(mc, kTestSimId);
+      assert.equal(sim.constructor.name, "Simulation",
+        "Sim is manually created");
       assert.equal(sim.mc, mc, "MicroCOMPS reference installed");
       assert.equal(sim.entityType, kSim, "Sim's entry has proper entity type");
-      assert.notEqual(sim, undefined, "Sim reference available from cache");
-      assert.notEqual(sim.info, null, "Sim info is populated");
-      assert.notEqual(sim.job, null, "Sim job is populated");
-      assert.notEqual(sim.tree, null, "Sim tree is populated");
+      assert.equal(sim.info, null, "Sim info is not yet populated");
+      assert.equal(sim.job, null, "Sim job is not yet populated");
+      assert.equal(sim.tree, null, "Sim tree is not yet populated");
+
+      sim.populate()
+        .then(sim => {
+          assert.equal(ec.has(kTestSimId), true, "Populated sim is cached")
+          assert.notEqual(sim.info, null, "Sim info is populated");
+          assert.notEqual(sim.job, null, "Sim job is populated");
+          assert.notEqual(sim.tree, null, "Sim tree is populated");
+          onDone();
+        });
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test Simulation obtained by getSimulation()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: baseUrl,
+        token: token,
+        autoAuth: false,
+      });
+      let ec = mc.getEntityCache();
+      assert.equal(ec.count().total, 0, "Cache is initially empty");
+      mc.getSimulation(kTestSimId)
+        .then(sim => {
+          assert.equal(sim.constructor.name, "Simulation",
+            "Sim is created");
+          assert.equal(sim.mc, mc, "MicroCOMPS reference installed");
+          assert.equal(sim.entityType, kSim, "Sim's entry has proper entity type");
+          assert.notEqual(sim.info, null, "Sim info is populated");
+          assert.notEqual(sim.job, null, "Sim job is populated");
+          assert.notEqual(sim.tree, null, "Sim tree is populated");
+          onDone();
+        });
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test Simulation error cases", assert => {
+      let mc = new MicroCOMPS({
+        baseUrl: baseUrl,
+        token: token,
+        autoAuth: false,
+      });
+
     });
 
   </script>

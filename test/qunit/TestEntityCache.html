@@ -23,9 +23,9 @@
   <style>html { box-sizing: border-box; padding: 16px}</style>
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
-    import {MicroCOMPS, Entity, EntityCache, generateGuid, VERSION}
-      // from "../microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    import {MicroCOMPS, Simulation, Entity, EntityCache, generateGuid, VERSION}
+      from "../microcomps.js";
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
 
     //==========================================================================
@@ -57,61 +57,91 @@
       const entTypes = [ "Simulations", "Experiments", "Suites", "WorkItems",
         "AssetCollections"];
       for (let entityType of entTypes) {
-        assert.true(entityType in ec.caches,
+        assert.ok(entityType in ec.caches,
           `Cache contains '${entityType}' category`);
       }
 
       // Test .add()
-      assert.true(ec.add(ent),
-        "EntityCache.add acks add of given entity");
-      assert.true(Object.keys(ec.caches.Simulations).length === 1,
+      assert.ok(ec.add(ent),
+        "EntityCache.add() acks add of given entity");
+      assert.ok(Object.keys(ec.caches.Simulations).length === 1,
         "EntityCache cached an entity");
       assert.equal(ec.caches.Simulations[id], ent,
         "EntityCache cached our entity");
-      assert.false(ec.add(null), "EntityCache.add rejects a non-entity arg")
+      assert.false(ec.add(null), "EntityCache.add() rejects a non-entity arg")
 
       // Test .has()
-      assert.true(ec.has(ent), "EntityCache.has finds our entity by ref");
+      assert.ok(ec.has(ent), "EntityCache.has finds our entity by ref");
       assert.false(ec.has(otherEnt),
-        "EntityCache.has doesn't find an uncached entity");
-      assert.true(ec.has("Simulations", id),
-        "EntityCache.has finds our entity by type/id");
-      assert.false(ec.has("Simulations", otherId),
-        "EntityCache.has doesn't find an uncached entry")
+        "EntityCache.has() doesn't find an uncached entity");
+      assert.ok(ec.has(id),
+        "EntityCache.has() finds our entity by type/id");
+      assert.false(ec.has(otherId),
+        "EntityCache.has() doesn't find an uncached entry")
       assert.false(ec.has(null),
-        "EntityCache.has rejects a non-entity arg");
+        "EntityCache.has() rejects a non-entity arg");
 
       // Test .get()
-      assert.true(ec.add(otherEnt),
-        "EntityCache.add acks add of another entity");
-      assert.equal(ec.get(ent.entityType, ent.id), ent,
-        "EntityCache.get retrieved an entity");
-      assert.equal(ec.get(otherEnt.entityType, otherEnt.id), otherEnt,
-        "EntityCache.get retrieved a different entity");
-      assert.equal(ec.get("Simulations", generateGuid()), undefined,
-        "EntityCache.get returns undefined for non-cached type/id");
+      assert.ok(ec.add(otherEnt),
+        "EntityCache.add() acks add of another entity");
+      assert.equal(ec.get(ent.id), ent,
+        "EntityCache.get() retrieved an entity");
+      assert.equal(ec.get(otherEnt.id), otherEnt,
+        "EntityCache.get() retrieved a different entity");
+      assert.equal(ec.get(generateGuid()), undefined,
+        "EntityCache.get() returns undefined for non-cached type/id");
 
       // Test .remove()
       assert.equal(Object.keys(ec.caches.Simulations).length, 2,
         "EntityCache cached another entity");
-      assert.true(ec.remove(ent),
-        "EntityCache.remove acks removal of entity");
+      assert.ok(ec.remove(ent),
+        "EntityCache.remove() acks removal of entity");
       assert.equal(Object.keys(ec.caches.Simulations).length, 1,
-        "EntityCache.remove removed an entity");
+        "EntityCache.removev removed an entity");
       assert.false(ec.has(ent), "EntityCache removed our entity");
-      assert.true(ec.has(otherEnt), "EntityCache retained non-removed entity");
+      assert.ok(ec.has(otherEnt), "EntityCache retained non-removed entity");
       assert.false(ec.remove(ent),
-        "EntityCache.remove rejects a non-cached entity");
+        "EntityCache.remove() rejects a non-cached entity");
       assert.false(ec.remove(null),
-        "EntityCache.remove rejects a non-entity arg");
+        "EntityCache.remove() rejects a non-entity arg");
 
       // Test .extend()
       let extraData = { files: "files", jobs: "jobs" };
-      assert.true(ec.extend(ent, extraData),
-        "EntityCache.extend acks extension of cached entity");
-      let retrievedEnt = ec.get(ent.entityType, ent.id);
-      assert.true("files" in retrievedEnt && "jobs" in retrievedEnt,
-        "EntityCache.get returns our entity with additional properties");
+      assert.ok(ec.extend(ent, extraData),
+        "EntityCache.extend() acks extension of cached entity");
+      let retrievedEnt = ec.get(ent.id);
+      assert.ok("files" in retrievedEnt && "jobs" in retrievedEnt,
+        "EntityCache.get() returns our entity with additional properties");
+
+      // Test .count()
+      let count;
+      ec.add(new Simulation(mc, generateGuid()));
+      count = ec.count();
+      assert.equal(count.total, 3, "EntityCache.count() returns correct total");
+      count = ec.count();
+      assert.equal(count.Simulations, 3,
+        "EntityCache.count() returns correct sim count after addition 1");
+      let sim = new Simulation(mc, generateGuid());
+      ec.add(sim);
+      count = ec.count();
+      assert.equal(count.Simulations, 4,
+        "EntityCache.count() returns correct sim count after addition 2");
+      assert.equal(count.total, 4,
+        "EntityCache.count() returns correct total after addition 2");
+      ec.remove(sim);
+      count = ec.count();
+      assert.equal(count.Simulations, 3,
+        "EntityCache.count() returns correct sim count after removal");
+      assert.equal(count.total, 3,
+        "EntityCache.count() returns correct total after removal");
+
+      // Test .clear()
+      count = ec.count();
+      assert.equal(count.total, 3, "Cache is initially populated");
+      ec.clear();
+      count = ec.count();
+      assert.equal(count.total, 0, "Cache total count is zero after clear");
+      assert.equal(count.Simulations, 0, "Cache sim count is zero after clear");
     });
   </script>
 </head>

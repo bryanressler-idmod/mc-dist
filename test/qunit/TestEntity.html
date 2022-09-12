@@ -46,9 +46,9 @@
       let mc = new MicroCOMPS({ autoAuth: false });
       let id = generateGuid();
       let ent = new Entity(mc, id, "Simulations");
-      assert.true(true, ent.mc === mc, "MicroCOMPS reference installed");
-      assert.true(true, ent.id === id, "entity id installed");
-      assert.true(true, ent.entityType === "Simulations", "entity type installed");
+      assert.ok(true, ent.mc === mc, "MicroCOMPS reference installed");
+      assert.ok(true, ent.id === id, "entity id installed");
+      assert.ok(true, ent.entityType === "Simulations", "entity type installed");
     });
   </script>
 </head>

@@ -47,13 +47,17 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test findSimId as URL param", assert => {
+      let simId = MicroCOMPS.findSimId();
+      // It's possible that there's an ambient simId out there and findSimId
+      // find it. So we don't care if it's undefined or some guid, but it won't
+      // be the test guid.
+      assert.notEqual(simId, kTestSimId, "Test sim id is not found by findSimId");
       const params = new URLSearchParams(window.location.search);
       params.set("simId", kTestSimId);
-      // Obscure: The following changes our URL without navigating
+      assert.notEqual(simId, undefined, "SimId is found by findSimId()");
       window.history.replaceState(null, null, `?${params.toString()}`);
-      assert.equal(MicroCOMPS.findSimId(), kTestSimId,
-        "findSimId() finds a sim id in the URL");
-      params.delete("simId");
+      assert.equal(params.has("simId"), true, "Test simId inserted into url1");
+      assert.equal(params.get("simId"), kTestSimId, "Test sim id is found");
     });
 
   </script>

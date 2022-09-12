@@ -55,7 +55,7 @@
         .then(sim => {
           const kTestPath = "runtime/favicon.ico";
           const fileTree = sim.getFileTree();
-          assert.true(fileTree.contains(kTestPath),
+          assert.ok(fileTree.contains(kTestPath),
             "contains() returns true on known file");
           assert.false(fileTree.contains("asdf/qwer.ty"),
             "contains() returns false on unknown file");
