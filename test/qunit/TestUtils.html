@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
     import {MicroCOMPS, VERSION}
-      // from "../microcomps.js";
+      // from "../microcomps";
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     import {shallowCompare} from "../microcomps";
     kTestVersion = "0.1.0";       // Our tests are designed for this version
@@ -47,7 +47,7 @@
       const o4 = { name: "hello", value: 42 };    // Identical to o1
       const o5 = { name: "hello", value: 42, extra: "howdy" };
 
-      assert.true(shallowCompare(o1, o1), "Test self-compare");
+      assert.t  rue(shallowCompare(o1, o1), "Test self-compare");
       assert.true(shallowCompare(o1, o4), "Test equivalent-compare");
       assert.true(shallowCompare(o1, o2), "Test value difference");
       assert.true(shallowCompare(o1, o3), "Test type difference");
