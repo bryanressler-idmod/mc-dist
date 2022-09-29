@@ -85,7 +85,6 @@
     QUnit.test("Test getFile() on known file with FileRec", assert => {
       const kTestContent = "Active content host\n";
       const onDone = assert.async();
-      const self = this;
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
         autoAuth: false
@@ -108,7 +107,6 @@
     QUnit.test("Test getFile() on unknown file", assert => {
       const kTestContent = "Active content host\n";
       const onDone = assert.async();
-      const self = this;
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
         autoAuth: false
@@ -134,7 +132,6 @@
     QUnit.test("Test getFiles() on known files", assert => {
       const kTestContent = "Active content host\n";
       const onDone = assert.async();
-      const self = this;
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
         autoAuth: false
@@ -159,7 +156,6 @@
     QUnit.test("Test getFiles() with mix of known/unknown files", assert => {
       const kTestContent = "Active content host\n";
       const onDone = assert.async();
-      const self = this;
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
         autoAuth: false
