@@ -23,11 +23,11 @@
   <style>html { box-sizing: border-box; padding: 16px}</style>
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
-    import {MicroCOMPS, VERSION}
-      // from "../microcomps";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
-    import {shallowCompare} from "../microcomps";
-    kTestVersion = "0.1.0";       // Our tests are designed for this version
+    import {MicroCOMPS, VERSION, shallowCompare, appendIfUnique}
+      from "../microcomps.js";
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+
+    //kTestVersion = "0.1.0";       // Our tests are designed for this version
 
     //==========================================================================
     QUnit.module("Utils tests");
@@ -37,7 +37,7 @@
     });
 
     QUnit.test("Version check", assert => {
-      assert.equal(VERSION, kTestVersion, "Test version matches code version");
+      assert.equal(VERSION, "0.1.0", "Test version matches code version");
     });
 
     QUnit.test("Test shallowCompare", assert => {
@@ -47,12 +47,28 @@
       const o4 = { name: "hello", value: 42 };    // Identical to o1
       const o5 = { name: "hello", value: 42, extra: "howdy" };
 
-      assert.t  rue(shallowCompare(o1, o1), "Test self-compare");
+      assert.true(shallowCompare(o1, o1), "Test self-compare");
       assert.true(shallowCompare(o1, o4), "Test equivalent-compare");
-      assert.true(shallowCompare(o1, o2), "Test value difference");
-      assert.true(shallowCompare(o1, o3), "Test type difference");
-      assert.true(shallowCompare(o2, o3), "Test equivalent-compare");
-      assert.true(shallowCompare(o2, o3), "Test key-count difference");
+      assert.false(shallowCompare(o1, o2), "Test value difference");
+      assert.false(shallowCompare(o1, o3), "Test type difference");
+      assert.false(shallowCompare(o2, o3), "Test equivalent-compare");
+      assert.false(shallowCompare(o2, o3), "Test key-count difference");
+    });
+
+    QUnit.test("Test appendIfUnique", assert => {
+      const o1 = { name: "hello", value: 42 };
+      const o2 = { name: "hello", value: 28 };
+      const o3 = { name: "howdy", leet: 1337 };
+      var arr1 = [];
+      var arr2 = [ o1 ];
+      var arr3 = [ o1, o2 ];
+      var arr4 = [ o1, o2, o3 ];
+      assert.equal(JSON.stringify(appendIfUnique(arr1, o1)), JSON.stringify(arr2),
+        "Test with empty input array");
+      assert.equal(JSON.stringify(appendIfUnique(arr2, o1)), JSON.stringify(arr2),
+        "Test with duplicate element already in input array");
+      assert.equal(JSON.stringify(appendIfUnique(arr3, o3)), JSON.stringify(arr4),
+        "Test append with existing entries");
     });
   </script>
 </head>
