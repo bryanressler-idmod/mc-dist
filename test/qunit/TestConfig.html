@@ -52,7 +52,6 @@
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
-        autoAuth: false,
       });
       let ec = mc.getEntityCache();
       assert.equal(ec.count().total, 0, "Cache is initially empty");

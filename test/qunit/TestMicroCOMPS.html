@@ -48,7 +48,7 @@
     //--------------------------------------------------------------------------
     QUnit.test("Default ctor", assert => {
       const onDone = assert.async();
-      let mc = new MicroCOMPS({ autoAuth: false });
+      let mc = new MicroCOMPS({ });
       assert.notEqual(mc, null, "Default constructor doesn't fail");
       assert.ok(mc.getBaseUrl().startsWith("http"),
         "Default baseUrl available");
@@ -60,7 +60,6 @@
       let logger = "not-a-logger-but-we-can-test-for-it";
       let options = {
         baseUrl: "https://comps2.idmod.org",
-        autoAuth: false,
         token: "notValidButGoodEnoughForATest"
       };
       let mc = new MicroCOMPS(options);
@@ -88,7 +87,6 @@
       let lgr = new FakeLogger();
       let mc = new MicroCOMPS({   // Replace logger at construction (most common)
         logger: lgr,
-        autoAuth: false,
       });
       assert.strictEqual(lgr, mc.getOptions().logger,
         "Replacement logger present");
@@ -121,7 +119,7 @@
         logError(msg) { this.lastError = msg; }
       }
       let lgr = new FakeLogger();
-      let mc = new MicroCOMPS({ autoAuth: false });
+      let mc = new MicroCOMPS({ });
       mc.setOptions({ logger: lgr });  // Replace logger after the fact
       assert.strictEqual(lgr, mc.getOptions().logger,
         "Replacement logger present");
@@ -144,7 +142,6 @@
       const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
-        autoAuth: false
       });
       assert.notEqual(mc, null, "MicroCOMPS was constructed")
       mc.getSimulation(kTestSimId)
@@ -162,7 +159,6 @@
       const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
-        autoAuth: false
       });
       assert.notEqual(mc, null, "MicroCOMPS was constructed")
       mc.getSimulation(kTestSimId)
@@ -180,7 +176,7 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test getBaseUrl()", assert => {
-      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, token: null});
       assert.ok(mc.getBaseUrl(), kBaseUrl, "baseUrl is valid");
       assert.ok(typeof mc.getOptions().logger, "object", "Logger present");
       mc.setOptions({ baseUrl: kDefaultDevBaseUrl });
@@ -197,20 +193,20 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test getToken()", assert => {
-      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, token: null});
       assert.notEqual(mc.getToken(), null, "Token is present");
       assert.equal(mc.opts.token, mc.getToken(), "Token is stored in opts");
     });
 
     //--------------------------------------------------------------------------
     QUnit.test("Test getEntityCache()", assert => {
-      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, token: null});
       assert.notEqual(mc.getEntityCache(), null, "Cache is present");
     });
 
     //--------------------------------------------------------------------------
     QUnit.test("Test getOptions()", assert => {
-      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, token: null});
       assert.ok(typeof mc.getOptions() === "object", null,
         "Options object returned");
       mc.opts.token = "asdf";
@@ -220,7 +216,7 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test setOptions()", assert => {
-      let mc = new MicroCOMPS({baseUrl: kBaseUrl, autoAuth: false, token: null});
+      let mc = new MicroCOMPS({baseUrl: kBaseUrl, token: null});
       assert.ok(typeof mc.getOptions() === "object", null,
         "Initial value is verifed");
       mc.setOptions({token: "asdf"});
@@ -244,7 +240,7 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test isViable()", assert => {
-      let mc = new MicroCOMPS({ autoAuth: false, token: null });
+      let mc = new MicroCOMPS({ token: null });
       assert.ok(mc.isViable(), "Call to isViable returns true");
       assert.equal(MicroCOMPS.getVersion(), VERSION,
         "MicroCOMPS reports proper version");
@@ -256,7 +252,7 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test toString()", assert => {
-      let mc = new MicroCOMPS({ autoAuth: false, token: null });
+      let mc = new MicroCOMPS({ token: null });
       assert.equal(mc.toString(),
         `[MicroCOMPS: ${mc.opts.baseUrl}/${humanizeToken(mc.opts.token)}]`,
         "toString() properly emits a string summary");
@@ -267,7 +263,6 @@
       const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
-        autoAuth: false
       });
       assert.notEqual(mc, null, "MicroCOMPS was constructed")
       mc.getSimulation(kTestSimId)

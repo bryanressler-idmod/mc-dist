@@ -43,7 +43,7 @@
 
     //------------------------------------------------------------------------
     QUnit.test("Test Entity", assert => {
-      let mc = new MicroCOMPS({ autoAuth: false });
+      let mc = new MicroCOMPS();
       let id = generateGuid();
       let ent = new Entity(mc, id, "Simulations");
       assert.ok(true, ent.mc === mc, "MicroCOMPS reference installed");

@@ -55,7 +55,6 @@
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
-        autoAuth: false,
       });
       let id = generateGuid();
       let ent = new Entity(mc, id, "Simulations");
@@ -70,7 +69,6 @@
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
-        autoAuth: false,
       });
       let ec = mc.getEntityCache();
       assert.equal(ec.count().total, 0, "Cache is initially empty");
@@ -99,7 +97,6 @@
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
-        autoAuth: false,
       });
       let ec = mc.getEntityCache();
       assert.equal(ec.count().total, 0, "Cache is initially empty");
