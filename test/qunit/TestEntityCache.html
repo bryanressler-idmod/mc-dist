@@ -116,30 +116,30 @@
       // Test .getCounts()
       let count;
       ec.add(new Simulation(mc, generateGuid()));
-      count = ec.count();
-      assert.equal(count.total, 3, "EntityCache.count() returns correct total");
-      count = ec.count();
+      count = ec.getCounts();
+      assert.equal(count.total, 3, "EntityCache.getCounts() returns correct total");
+      count = ec.getCounts();
       assert.equal(count.Simulations, 3,
-        "EntityCache.count() returns correct sim count after addition 1");
+        "EntityCache.getCounts() returns correct sim count after addition 1");
       let sim = new Simulation(mc, generateGuid());
       ec.add(sim);
-      count = ec.count();
+      count = ec.getCounts();
       assert.equal(count.Simulations, 4,
-        "EntityCache.count() returns correct sim count after addition 2");
+        "EntityCache.getCounts() returns correct sim count after addition 2");
       assert.equal(count.total, 4,
-        "EntityCache.count() returns correct total after addition 2");
+        "EntityCache.getCounts() returns correct total after addition 2");
       ec.remove(sim);
-      count = ec.count();
+      count = ec.getCounts();
       assert.equal(count.Simulations, 3,
-        "EntityCache.count() returns correct sim count after removal");
+        "EntityCache.getCounts() returns correct sim count after removal");
       assert.equal(count.total, 3,
-        "EntityCache.count() returns correct total after removal");
+        "EntityCache.getCounts() returns correct total after removal");
 
       // Test .clear()
-      count = ec.count();
+      count = ec.getCounts();
       assert.equal(count.total, 3, "Cache is initially populated");
       ec.clear();
-      count = ec.count();
+      count = ec.getCounts();
       assert.equal(count.total, 0, "Cache total count is zero after clear");
       assert.equal(count.Simulations, 0, "Cache sim count is zero after clear");
     });

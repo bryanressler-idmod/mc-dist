@@ -216,7 +216,7 @@
           }, FileTree.kWithDirs);
           assert.ok(foundDir, "Traverse finds dirs when kWithDirs specified");
           assert.ok(foundFile, "Traverse finds files");
-          let counts = fileTree.count();
+          let counts = fileTree.getCounts();.getCounts(
           assert.ok(iterations < counts[0],
             "Traverse stops early on lambda returning false");
           foundDir = false;
@@ -241,7 +241,7 @@
       mc.getSimulation(kTestSimId)
         .then(sim => {
           const fileTree = sim.getFileTree();
-          let counts = fileTree.count();    // Returns [fileCount, byteCount]
+          let counts = fileTree.getCounts();    // Returns [fileCount, byteCount]
           assert.ok(counts[0] > 0 && counts[1] > 0,
             `Count returns ${counts[0]} for ${counts[1]} bytes > 0`);
           // [FileTree: 33 files, 1,961,163 bytes]
