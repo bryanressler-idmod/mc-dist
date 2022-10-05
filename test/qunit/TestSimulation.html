@@ -124,7 +124,7 @@
         baseUrl: baseUrl,
         token: token,
       });
-     mc.getSimulation(kConfigTestSimId)
+      mc.getSimulation(kConfigTestSimId)
         .then(sim => {
           assert.equal(sim.configFilename, "config.json",
             "Check config filename");
