@@ -113,7 +113,7 @@
       assert.ok("files" in retrievedEnt && "jobs" in retrievedEnt,
         "EntityCache.get() returns our entity with additional properties");
 
-      // Test .count()
+      // Test .getCounts()
       let count;
       ec.add(new Simulation(mc, generateGuid()));
       count = ec.count();

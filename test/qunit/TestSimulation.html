@@ -72,7 +72,7 @@
         token: token,
       });
       let ec = mc.getEntityCache();
-      assert.equal(ec.count().total, 0, "Cache is initially empty");
+      assert.equal(ec.getCounts().total, 0, "Cache is initially empty");
       let sim = new Simulation(mc, kTestSimId);
       assert.equal(sim.constructor.name, "Simulation",
         "Sim is manually created");
@@ -101,7 +101,7 @@
         token: token,
       });
       let ec = mc.getEntityCache();
-      assert.equal(ec.count().total, 0, "Cache is initially empty");
+      assert.equal(ec.getCounts().total, 0, "Cache is initially empty");
       mc.getSimulation(kTestSimId)
         .then(sim => {
           assert.equal(sim.constructor.name, "Simulation",
