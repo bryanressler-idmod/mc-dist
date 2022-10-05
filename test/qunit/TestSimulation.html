@@ -28,6 +28,7 @@
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist/js/microcomps.js";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
+    const kConfigTestSimId = "154d0a7f-fd23-ed11-92ee-f0921c167860";
     const kBaseUrl = "https://comps-dev.idmod.org";
 
     let token = null;
@@ -88,7 +89,8 @@
           assert.notEqual(sim.job, null, "Sim job is populated");
           assert.notEqual(sim.tree, null, "Sim tree is populated");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -110,18 +112,63 @@
           assert.notEqual(sim.job, null, "Sim job is populated");
           assert.notEqual(sim.tree, null, "Sim tree is populated");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
-    QUnit.test("Test Simulation error cases", assert => {
+    QUnit.test("Test getConfig()", assert => {
+      const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: baseUrl,
         token: token,
-        autoAuth: false,
       });
-
+     mc.getSimulation(kConfigTestSimId)
+        .then(sim => {
+          assert.equal(sim.configFilename, "config.json",
+            "Check config filename");
+          return sim.getConfig();
+        })
+        .then(config => {
+          assert.equal(config.parameters.Simulation_Type, "VECTOR_SIM",
+            "Spot check config data");
+          assert.equal(config.parameters.Simulation_Duration, 4380,
+            "Spot check config data");
+          onDone();
+        })
+       .catch(ex => onDone());
     });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getDemographics()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: baseUrl,
+        token: token,
+      });
+      mc.getSimulation(kConfigTestSimId)
+        .then(sim => sim.getDemographics())
+        .then(demo => {
+          assert.equal(demo.Metadata.RightLongitude, 37,
+            "Test overlay replace");
+          assert.equal(demo.Metadata.ExtraData, "Testing",
+            "Test overlay add");
+          assert.equal(demo.Nodes.length, 36,
+            "Test non-overlaid value")
+          assert.equal()
+          onDone();
+        })
+        .catch(ex => onDone());
+    });
+
+    //--------------------------------------------------------------------------
+    // QUnit.test("Test Simulation error cases", assert => {
+    //   let mc = new MicroCOMPS({
+    //     baseUrl: baseUrl,
+    //     token: token,
+    //   });
+    //
+    // });
 
   </script>
 </head>
