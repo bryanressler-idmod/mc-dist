@@ -194,6 +194,25 @@
     });
 
     //--------------------------------------------------------------------------
+    QUnit.test("Test getFileList()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed")
+      mc.getSimulation(kTestSimId)
+        .then(sim => {
+          const ft = sim.getFileTree();
+          const listing = ft.getFileList(FileTree.kNoDirs);
+          // Because I change the contents of this test sim sometimes, I'm not
+          // doing a comprehensive test here, just a spot check.
+          console.log(listing);
+          assert.true(listing.length > 0, "Listing is returned");
+          onDone();
+        });
+    });
+
+    //--------------------------------------------------------------------------
     QUnit.test("Test traverse()", assert => {
       const onDone = assert.async();
       let mc = new MicroCOMPS({
