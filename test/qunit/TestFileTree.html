@@ -25,7 +25,8 @@
   <script type="module">
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+      // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-633f6526/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
@@ -235,7 +236,7 @@
           }, FileTree.kWithDirs);
           assert.ok(foundDir, "Traverse finds dirs when kWithDirs specified");
           assert.ok(foundFile, "Traverse finds files");
-          let counts = fileTree.getCounts();.getCounts(
+          let counts = fileTree.getCounts();
           assert.ok(iterations < counts[0],
             "Traverse stops early on lambda returning false");
           foundDir = false;
