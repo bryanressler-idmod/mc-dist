@@ -59,8 +59,8 @@
             "contains() returns true on known file");
           assert.false(fileTree.contains("asdf/qwer.ty"),
             "contains() returns false on unknown file");
-          onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -77,7 +77,8 @@
           assert.equal(fileContents, kTestContent,
             "getFile() of known file succeeds and returns correct file contents");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -98,7 +99,8 @@
           assert.equal(fileContents, kTestContent,
             "getFile() of known file succeeds and returns correct file contents");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -122,7 +124,8 @@
         .catch(err => {
           assert.ok(true, "Got expected reject on unknown file");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -145,7 +148,8 @@
           assert.equal(fileContentsArray[1], "",
             "getFiles() of known file succeeds and second file is correct");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -168,7 +172,8 @@
         .catch(err => {
           assert.ok(true, "Got expected reject on unknown file");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -190,8 +195,9 @@
             "File record points to correct directory");
           fileRec = fileTree.findFileRecord("asdf/qwer.ty");
           assert.equal(fileRec, null, "File record for known file is found");
-          onDone();
-        });
+          onDone()
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -210,7 +216,8 @@
           console.log(listing);
           assert.true(listing.length > 0, "Listing is returned");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -248,7 +255,8 @@
           assert.false(foundDir,
             "Traverse skips directory records when kNoDirs specified");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
     //--------------------------------------------------------------------------
@@ -270,7 +278,8 @@
             `${counts[1].toLocaleString()} bytes]`,
             "Check toString() returns correct summary");
           onDone();
-        });
+        })
+        .catch(ex => onDone());
     });
 
   </script>
