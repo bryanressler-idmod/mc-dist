@@ -26,7 +26,7 @@
     import {MicroCOMPS, Entity, VERSION, generateGuid, kSim, Simulation}
       // from "../../dist/microcomps.js"   // FIXME
       //from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-633f1686/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-633f1705/js/microcomps.js";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
     const kConfigTestSimId = "154d0a7f-fd23-ed11-92ee-f0921c167860";
@@ -150,13 +150,19 @@
       mc.getSimulation(kConfigTestSimId)
         .then(sim => sim.getDemographics())
         .then(demo => {
+          assert.equal(demo.NewKeyAtRoot, "Hello World!",
+            "Test overlay add at root");
           assert.equal(demo.Metadata.RightLongitude, 37,
             "Test overlay replace");
           assert.equal(demo.Metadata.ExtraData, "Testing",
             "Test overlay add");
           assert.equal(demo.Nodes.length, 36,
-            "Test non-overlaid value")
-          assert.equal()
+            "Test non-overlaid array length");
+          assert.equal(demo.Defaults.NodeAttributes.Alititude, 400,
+            "Test overlay replace deep");
+          assert.equal(demo.Defaults.IndividualAttributes.MortalityDistribution.AxisScaleFactors,
+            [ 2, 730 ],
+            "Test overlay of array value deep");
           onDone();
         })
         .catch(ex => onDone());
