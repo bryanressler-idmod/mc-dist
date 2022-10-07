@@ -137,7 +137,7 @@
             "Spot check config data");
           onDone();
         })
-       .catch(ex => onDone());
+       .catch(ex => {console.error(ex); onDone(); });
     });
 
     //--------------------------------------------------------------------------
