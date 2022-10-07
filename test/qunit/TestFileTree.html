@@ -26,7 +26,7 @@
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6340b0e8/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6340b41d/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
@@ -350,13 +350,23 @@
         const rpTests = [
           { input: "config.json", expected: "./config.json", test: "regularizePath prepends ./ to file path" },
           { input: ".", expected: "./", test: "regularizePath prepends ./ to root directory path" },
-          { input: "output/", expected: "./output/", test: "regularizePath prepends ./ to non-rroot directory path" },
+          { input: "output/", expected: "./output/", test: "regularizePath prepends ./ to non-root directory path" },
           { input: "output/InsetChart.json", expected: "./output/InsetChart.json", test: "regularizePath prepends ./ to non-root directory path" },
         ];
+        const onDone = assert.async();
+        let mc = new MicroCOMPS({
+          baseUrl: kBaseUrl,
+        });
+        assert.notEqual(mc, null, "MicroCOMPS was constructed");
+        mc.getSimulation(kTestSimId)
+          .then(sim => {
+            const ft = sim.getFileTree();
+            for (let test of rpTests) {
+              assert.equal(ft.regularizePath(test.input), test.expected, test.test);
+            }
+          });
+
         // regularizedPathFromFileRec calls regularizePath
-        for (let test of rpTests) {
-          assert.equal(this.regularizePath(test.input), test.expected, test.test);
-        }
       });
 
     //--------------------------------------------------------------------------
