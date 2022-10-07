@@ -311,37 +311,37 @@
         .catch(ex => onDone());
     });
 
-    //--------------------------------------------------------------------------
-    QUnit.test("Test validateFileList()", assert => {
-      const onDone = assert.async();
-      let mc = new MicroCOMPS({
-        baseUrl: kBaseUrl,
-      });
-      assert.notEqual(mc, null, "MicroCOMPS was constructed");
-      mc.getSimulation(kTestSimId)
-        .then(sim => {
-          const ft = sim.getFileTree();
-          let given = [
-            "campaign.json",              // KEEP root file without ./ prefix
-            "./config.html",              // KEEP root file with ./ prefix
-            "Assets/NotPresent",          // DROP missing file
-            "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
-            "output/BinnedReport.json",   // KEEP non-root file path without ./
-            "Vis-Tools/",                 // DROP dir
-          ];
-          let expected = [
-            "campaign.json",              // KEEP root file without ./ prefix
-            "./config.html",              // KEEP root file with ./ prefix
-            "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
-            "output/BinnedReport.json",   // KEEP non-root file path without ./
-          ];
-          let actual = ft.validateFileList(given);
-          assert.equal(expected, actual, "Disallowed and missing entries are dropped");
-          onDone();
-        })
-        .catch(ex => onDone());
-    });
-
+    // //--------------------------------------------------------------------------
+    // QUnit.test("Test validateFileList()", assert => {
+    //   const onDone = assert.async();
+    //   let mc = new MicroCOMPS({
+    //     baseUrl: kBaseUrl,
+    //   });
+    //   assert.notEqual(mc, null, "MicroCOMPS was constructed");
+    //   mc.getSimulation(kTestSimId)
+    //     .then(sim => {
+    //       const ft = sim.getFileTree();
+    //       let given = [
+    //         "campaign.json",              // KEEP root file without ./ prefix
+    //         "./config.html",              // KEEP root file with ./ prefix
+    //         "Assets/NotPresent",          // DROP missing file
+    //         "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
+    //         "output/BinnedReport.json",   // KEEP non-root file path without ./
+    //         "Vis-Tools/",                 // DROP dir
+    //       ];
+    //       let expected = [
+    //         "campaign.json",              // KEEP root file without ./ prefix
+    //         "./config.html",              // KEEP root file with ./ prefix
+    //         "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
+    //         "output/BinnedReport.json",   // KEEP non-root file path without ./
+    //       ];
+    //       let actual = ft.validateFileList(given);
+    //       assert.equal(expected, actual, "Disallowed and missing entries are dropped");
+    //       onDone();
+    //     })
+    //     .catch(ex => onDone());
+    // });
+    //
     //--------------------------------------------------------------------------
     QUnit.test("Test count() and toString()", assert => {
       const onDone = assert.async();
