@@ -26,10 +26,11 @@
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63407219/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-634072ad/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
+    const kConfigTestSimId = "154d0a7f-fd23-ed11-92ee-f0921c167860";
 
     //==========================================================================
     QUnit.module("FileTree tests");
@@ -311,37 +312,38 @@
         .catch(ex => onDone());
     });
 
-    // //--------------------------------------------------------------------------
-    // QUnit.test("Test validateFileList()", assert => {
-    //   const onDone = assert.async();
-    //   let mc = new MicroCOMPS({
-    //     baseUrl: kBaseUrl,
-    //   });
-    //   assert.notEqual(mc, null, "MicroCOMPS was constructed");
-    //   mc.getSimulation(kTestSimId)
-    //     .then(sim => {
-    //       const ft = sim.getFileTree();
-    //       let given = [
-    //         "campaign.json",              // KEEP root file without ./ prefix
-    //         "./config.html",              // KEEP root file with ./ prefix
-    //         "Assets/NotPresent",          // DROP missing file
-    //         "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
-    //         "output/BinnedReport.json",   // KEEP non-root file path without ./
-    //         "Vis-Tools/",                 // DROP dir
-    //       ];
-    //       let expected = [
-    //         "campaign.json",              // KEEP root file without ./ prefix
-    //         "./config.html",              // KEEP root file with ./ prefix
-    //         "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
-    //         "output/BinnedReport.json",   // KEEP non-root file path without ./
-    //       ];
-    //       let actual = ft.validateFileList(given);
-    //       assert.equal(expected, actual, "Disallowed and missing entries are dropped");
-    //       onDone();
-    //     })
-    //     .catch(ex => onDone());
-    // });
-    //
+    //--------------------------------------------------------------------------
+    QUnit.test("Test validateFileList()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed");
+      mc.getSimulation(kConfigTestSimId)
+        .then(sim => {
+          const ft = sim.getFileTree();
+          let given = [
+            "campaign.json",              // KEEP root file without ./ prefix
+            "./config.json",              // KEEP root file with ./ prefix
+            "Assets/NotPresent",          // DROP missing file
+            "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
+            "output/BinnedReport.json",   // KEEP non-root file path without ./
+            "Vis-Tools/",                 // DROP dir
+          ];
+          let expected = [
+            "./campaign.json",            // KEEP root file without ./ prefix
+            "./config.json",              // KEEP root file with ./ prefix
+            "./output/InsetChart.json",   // KEEP non-root file with ./ prefix
+            "./output/BinnedReport.json", // KEEP non-root file path without ./
+          ];
+          let actual = ft.validateFileList(given);
+          assert.deepEqual(actual, expected,
+            "Disallowed and missing entries are dropped");
+          onDone();
+        })
+        .catch(ex => onDone());
+    });
+
     //--------------------------------------------------------------------------
     QUnit.test("Test count() and toString()", assert => {
       const onDone = assert.async();
