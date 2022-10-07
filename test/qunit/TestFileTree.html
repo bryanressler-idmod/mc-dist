@@ -26,7 +26,7 @@
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63405dfe/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6340605e/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
@@ -200,7 +200,7 @@
     });
 
     //--------------------------------------------------------------------------
-    QUnit.test("Test getFileList()", assert => {
+    QUnit.test("Test getFileList() with directories", assert => {
       const onDone = assert.async();
       let mc = new MicroCOMPS({
         baseUrl: kBaseUrl,
@@ -215,7 +215,8 @@
           assert.true(listing.length > 0, "Listing is returned");
           let count = 0;
           ft.traverse(() => {count++; return true;}, FileTree.kWithDirs);
-          assert.equal(listing.length, count, "Listing length matches file list")
+          // File listing includes an entry for ./, so we add 1 for that.
+          assert.equal(listing.length, count + 1, "Listing length matches file list + 1 (./)")
           console.log(listing);
           assert.equal(listing[0], "./", "Root dir is first in list");
           assert.notEqual(listing.indexOf("./stderr.txt"), -1,
@@ -224,8 +225,46 @@
             "Known non-root file is found with expected name");
           assert.equal(listing.indexOf("asdf/qwer.ty"), -1,
             "Unknown file is NOT found");
-          let prefixed = listing.reduce((accum, entry) =>
-            accum + entry.startsWith("./") ? 1 : 0);
+          let prefixed = 0;
+          ft.traverse(entry => {prefixed += entry.startsWith("./") ? 1 : 0});
+          assert.equal(listing.length, prefixed, "All entries start with ./");
+          let pathset = new Set(listing);
+          assert.equal(listing.length, pathset.size, "No duplicates exist");
+          onDone();
+        })
+        .catch(ex => onDone());
+    });
+
+    //--------------------------------------------------------------------------
+    QUnit.test("Test getFileList() without directories", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed")
+      mc.getSimulation(kTestSimId)
+        .then(sim => {
+          const ft = sim.getFileTree();
+          const listing = ft.getFileList(FileTree.kNoDirs);
+          // Because I change the contents of this test sim sometimes, I'm not
+          // doing a comprehensive test here, just a spot check.
+          assert.true(listing.length > 0, "Listing is returned");
+          let count = 0;
+          ft.traverse(entry => { count += entry.Type === "Directory" ? 0 : 1},
+            FileTree.kNoDirs);
+          // File listing includes an entry for ./, so we add 1 for that.
+          assert.equal(listing.length, count + 1, "Listing length matches file list + 1 (./)")
+          console.log(listing);
+          assert.equal(listing[0], "./", "Root dir is first in list");
+          assert.notEqual(listing.indexOf("./stderr.txt"), -1,
+            "Known root file is found with expected name");
+          assert.notEqual(listing.indexOf("./runtime/index.html"), -1,
+            "Known non-root file is found with expected name");
+          assert.equal(listing.indexOf("asdf/qwer.ty"), -1,
+            "Unknown file is NOT found");
+          let prefixed = 0;
+          ft.traverse(entry => {prefixed += entry.startsWith("./") ? 1 : 0},
+            FileTree.kNoDirs);
           assert.equal(listing.length, prefixed, "All entries start with ./");
           let pathset = new Set(listing);
           assert.equal(listing.length, pathset.size, "No duplicates exist");
