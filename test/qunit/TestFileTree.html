@@ -26,7 +26,7 @@
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63404cd8/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63405057/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
@@ -223,7 +223,9 @@
             "Unknown file is NOT found");
           let prefixed = listing.reduce((accum, entry) =>
             accum + entry.startsWith("./") ? 1 : 0);
-          assert.equal(listing.length, prefixed, "All entries start with ./")
+          assert.equal(listing.length, prefixed, "All entries start with ./");
+          let pathset = new Set(listing);
+          assert.equal(listing.length, pathset.size, "No duplicates exist");
           onDone();
         })
         .catch(ex => onDone());
