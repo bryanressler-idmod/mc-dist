@@ -364,9 +364,8 @@
             for (let test of rpTests) {
               assert.equal(ft.regularizePath(test.input), test.expected, test.test);
             }
+            onDone();
           });
-
-        // regularizedPathFromFileRec calls regularizePath
       });
 
     //--------------------------------------------------------------------------
