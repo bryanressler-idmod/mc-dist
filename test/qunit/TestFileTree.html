@@ -253,13 +253,14 @@
             FileTree.kNoDirs);
           // File listing includes an entry for ./, so we add 1 for that.
           assert.equal(listing.length, count, "Listing length matches file list")
-          console.log(listing);
           assert.notEqual(listing.indexOf("./stderr.txt"), -1,
             "Known root file is found with expected name");
           assert.notEqual(listing.indexOf("./runtime/index.html"), -1,
             "Known non-root file is found with expected name");
           assert.equal(listing.indexOf("asdf/qwer.ty"), -1,
             "Unknown file is NOT found");
+          assert.equal(listing.indexOf("./runtime"), -1,
+            "Directories not found with withDirs == false");
           let prefixed = 0;
           ft.traverse(entry => {prefixed += entry.startsWith("./") ? 1 : 0},
             FileTree.kNoDirs);
