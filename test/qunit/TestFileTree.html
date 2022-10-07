@@ -312,6 +312,33 @@
     });
 
     //--------------------------------------------------------------------------
+    QUnit.test("Test validateFileList()", assert => {
+      const onDone = assert.async();
+      let mc = new MicroCOMPS({
+        baseUrl: kBaseUrl,
+      });
+      assert.notEqual(mc, null, "MicroCOMPS was constructed");
+      mc.getSimulation(kTestSimId)
+        .then(sim => {
+          const fileTree = sim.getFileTree();
+          let counts = fileTree.getCounts();    // Returns [fileCount, byteCount]
+          let potentials = [
+            "output/BinnedReport.json",   // file path with no ./ prefix
+            "Vis-Tools/",
+          ]
+          assert.ok(counts[0] > 0 && counts[1] > 0,
+            `Count returns ${counts[0]} for ${counts[1]} bytes > 0`);
+          // [FileTree: 33 files, 1,961,163 bytes]
+          assert.equal(fileTree.toString(),
+            `[FileTree: ${counts[0].toLocaleString()} files, ` +
+            `${counts[1].toLocaleString()} bytes]`,
+            "Check toString() returns correct summary");
+          onDone();
+        })
+        .catch(ex => onDone());
+    });
+
+    //--------------------------------------------------------------------------
     QUnit.test("Test count() and toString()", assert => {
       const onDone = assert.async();
       let mc = new MicroCOMPS({
