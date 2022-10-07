@@ -26,7 +26,7 @@
     import {MicroCOMPS, FileTree, VERSION}
       // from "../../dist/microcomps.js";
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-633f79a1/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63404cd8/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
@@ -214,6 +214,16 @@
           // doing a comprehensive test here, just a spot check.
           console.log(listing);
           assert.true(listing.length > 0, "Listing is returned");
+          assert.equal(listing[0], "./", "Root dir is first in list");
+          assert.notEqual(listing.indexOf("./stderr.txt"), -1,
+            "Known root file is found with expected name");
+          assert.notEqual(listing.indexOf("./runtime/index.html"), -1,
+            "Known non-root file is found with expected name");
+          assert.equal(listing.indexOf("asdf/qwer.ty"), -1,
+            "Unknown file is NOT found");
+          let prefixed = listing.reduce((accum, entry) =>
+            accum + entry.startsWith("./") ? 1 : 0);
+          assert.equal(listing.length, prefixed, "All entries start with ./")
           onDone();
         })
         .catch(ex => onDone());
