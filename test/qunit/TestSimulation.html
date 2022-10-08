@@ -26,7 +26,7 @@
     import {MicroCOMPS, Entity, VERSION, generateGuid, kSim, Simulation}
       // from "../../dist/microcomps.js"   // FIXME
       // from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6340bab5/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6340bd2f/js/microcomps.js";
     const kTestVersion = "0.1.0";     // Our tests are designed for this version
     const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
     const kConfigTestSimId = "154d0a7f-fd23-ed11-92ee-f0921c167860";
@@ -148,7 +148,9 @@
         token: token,
       });
       mc.getSimulation(kConfigTestSimId)
-        .then(sim => sim.getDemographics())
+        .then(sim => {
+          return sim.getDemographics();
+        })
         .then(demo => {
           assert.equal(demo.NewKeyAtRoot, "Hello World!",
             "Test overlay add at root");
@@ -167,15 +169,6 @@
         })
         .catch(ex => onDone());
     });
-
-    //--------------------------------------------------------------------------
-    // QUnit.test("Test Simulation error cases", assert => {
-    //   let mc = new MicroCOMPS({
-    //     baseUrl: baseUrl,
-    //     token: token,
-    //   });
-    //
-    // });
 
   </script>
 </head>
