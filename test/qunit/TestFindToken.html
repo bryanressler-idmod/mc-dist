@@ -135,7 +135,6 @@
       let baseUrl;
       Cookies.set(key, kTestToken, "default");
       let token = Cookies.get(kCookieKey);
-      debugger;   // FIXME
       // Test the front of the cookie since there are dates, etc. further into
       // the cookie data that will be different.
       assert.notEqual(token, undefined, "Ensure cookie is retrievable")
