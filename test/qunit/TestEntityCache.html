@@ -26,6 +26,7 @@
     import {MicroCOMPS, Simulation, Entity, EntityCache, generateGuid, VERSION}
       // from "../../dist/microcomps.js";
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
+    import {kSim} from "../../src";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
 
     //==========================================================================
@@ -74,9 +75,9 @@
       assert.ok(ec.has(ent), "EntityCache.has finds our entity by ref");
       assert.false(ec.has(otherEnt),
         "EntityCache.has() doesn't find an uncached entity");
-      assert.ok(ec.has(id),
+      assert.ok(ec.has(kSim, id),
         "EntityCache.has() finds our entity by type/id");
-      assert.false(ec.has(otherId),
+      assert.false(ec.has(kSim, otherId),
         "EntityCache.has() doesn't find an uncached entry")
       assert.false(ec.has(null),
         "EntityCache.has() rejects a non-entity arg");
