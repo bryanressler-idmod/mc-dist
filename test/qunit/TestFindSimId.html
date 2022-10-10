@@ -25,12 +25,21 @@
   <script type="module">
     import {MicroCOMPS, VERSION, getCookie, setCookie, forEachCookie, Auth, Cookies}
       // from "../../dist/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
     const kTestVersion = "0.1.0";       // Our tests are designed for this version
-    const kTestSimId = "c44adb92-57fd-ec11-92ec-f0921c167860";
+    const kTestSimId = "1a3f46f5-31f9-eb11-92df-f0921c167864";
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kCookieKey = "Token-comps-dev.idmod.org"
     const kTestToken = "1,Auth,bressler,10.24.14.11,p-5wwHRZLd7niPlE9NLYMUyiX2VrCzvjgwC4O-Zm_I8.,IDMSPAPP01,2022-07-20-21-52-07,2028-07-20-17-52-07,lXDoTZMlHXHjeieD9EKPDOsNPex2NfN9wvjKzr4meJA.,TokenService.Post,WKpJHD1IG+R6Cq21PZns8jFQ7XWYx/smuq8oGpm5QBY=,bressler@idmod.org,2dAwrjFWrh74pzgFvQAslnSVNQv44RSzGlAH-upFAk0.,o75caiwW2nT1nLqEuDDG-Ck9M0r-kEHvfwSOKpTcMGk.,b56c6080-3187-42bf-9bd3-c69a21624bf3,1,11,,,$aoJ2Vbc13B5l5CVXRmUZrVfotTwIijfS6CyeNXvlGD0=";
+
+    let token = null;
+    let baseUrl = null;
+    //==========================================================================
+    QUnit.module("MicroCOMPS.findSimId() tests", {
+      before: () => {
+        [baseUrl, token] = MicroCOMPS.findAnyToken();
+      },
+    });
 
     //==========================================================================
     QUnit.module("MicroCOMPS.findSimId() tests");
@@ -47,10 +56,11 @@
 
     //--------------------------------------------------------------------------
     QUnit.test("Test findSimId as URL param", assert => {
+      let mc = new MicroCOMPS({ baseUrl: baseUrl, token: token });
       let simId = MicroCOMPS.findSimId();
       // It's possible that there's an ambient simId out there and findSimId
-      // find it. So we don't care if it's undefined or some guid, but it won't
-      // be the test guid.
+      // find it. So we don't care if it's undefined or some guid, but it is
+      // unlikely to be kTestSimId, which points to an old GuerrillaCOMPS sim.
       assert.notEqual(simId, kTestSimId, "Test sim id is not found by findSimId");
       const params = new URLSearchParams(window.location.search);
       params.set("simId", kTestSimId);

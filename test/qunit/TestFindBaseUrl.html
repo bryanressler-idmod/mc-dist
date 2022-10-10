@@ -25,7 +25,7 @@
   <script type="module">
     import {MicroCOMPS, VERSION, isLocalhost}
       // from "../../dist/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6344771d/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
     const kTestVersion = "0.1.0";   // Our tests are designed for this version
 
     let token = null;
@@ -106,7 +106,7 @@
       // To reduce user error, MicroCOMPS will accept a baseUrl that doesn't
       // have a protocol (i.e. http:// or https://) at the beginning. Test that.
       const onDone = assert.async();
-      mc = new MicroCOMPS({
+      let mc = new MicroCOMPS({
         baseUrl: window.location.hostname,
         token: token,
       });
@@ -114,6 +114,7 @@
         "Protocol is added to bare baseUrl");
       assert.notEqual(mc.getOptions().baseUrl.indexOf("://"), -1,
         "Protocol includes separator");
+      onDone();
     });
   </script>
 </head>
