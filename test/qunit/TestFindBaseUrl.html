@@ -25,8 +25,17 @@
   <script type="module">
     import {MicroCOMPS, VERSION, isLocalhost}
       // from "../../dist/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6344543b/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6344771d/js/microcomps.js";
     const kTestVersion = "0.1.0";   // Our tests are designed for this version
+
+    let token = null;
+    let baseUrl = null;
+    //==========================================================================
+    QUnit.module("Test MicroCOMPS.findSimId()", {
+      before: () => {
+        [baseUrl, token] = MicroCOMPS.findAnyToken();
+      },
+    });
 
     //==========================================================================
     QUnit.module("MicroCOMPS.findBaseUrl() tests");
@@ -79,22 +88,27 @@
       // Case 4: We tried everything we can think of, default to prod.
       const onDone = assert.async();
       let params = new URLSearchParams(window.location.search);
-      let expected1 = "https://comps.idmod.org";
-      let expected2 = `${window.location.protocol}`;
+      let expected = [
+        "https://comps.idmod.org",
+        `${window.location.protocol}//comps-dev.idmod.org`,
+        "http://localhost",
+      ];
       assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
-      assert.true(isLocalhost(window.location.host), "Test running on localhost");
+      assert.false(isLocalhost(window.location.host), "Test localhost detection");
       let baseUrl = MicroCOMPS.findBaseUrl();
-      assert.ok(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
+      assert.ok(expected.indexOf(baseUrl), "Test default baseUrl");
       onDone();
     });
 
+    //--------------------------------------------------------------------------
     QUnit .test("Test fixing up a baseUrl provided with no protocol", assert =>
     {
       // To reduce user error, MicroCOMPS will accept a baseUrl that doesn't
       // have a protocol (i.e. http:// or https://) at the beginning. Test that.
+      const onDone = assert.async();
       mc = new MicroCOMPS({
-        baseUrl: "comps-dev.idmod.org",
-        turnkeyUI: false,
+        baseUrl: window.location.hostname,
+        token: token,
       });
       assert.true(mc.getOptions().baseUrl.startsWith("http"),
         "Protocol is added to bare baseUrl");
