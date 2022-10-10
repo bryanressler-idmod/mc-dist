@@ -26,6 +26,7 @@
     import {MicroCOMPS, VERSION}
       // from "../../dist/microcomps.js";
       from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
+    import {kLocalhostAliases} from "../../src";
     const kTestVersion = "0.1.0";   // Our tests are designed for this version
 
     //==========================================================================
@@ -80,10 +81,9 @@
       const onDone = assert.async();
       let params = new URLSearchParams(window.location.search);
       let expected1 = "https://comps.idmod.org";
-      let expected2 = `${window.location.protocol}//comps-dev.idmod.org`;
+      let expected2 = `${window.location.protocol}`;
       assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
-      assert.ok(window.location.hostname === "1.0.0.1" ||
-                  window.location.hostname === "localhost",
+      assert.true(kLocalhostAliases.indexOf(window.location.host) !== -1,
         "Test running on localhost");
       let baseUrl = MicroCOMPS.findBaseUrl();
       assert.ok(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
