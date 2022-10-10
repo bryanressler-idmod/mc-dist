@@ -23,9 +23,9 @@
   <style>html { box-sizing: border-box; padding: 16px}</style>
   <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.1.css">
   <script type="module">
-    import {MicroCOMPS, VERSION, kLocalhostAliases}
+    import {MicroCOMPS, VERSION, isLocalhost}
       // from "../../dist/microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63445026/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-63445386/js/microcomps.js";
     const kTestVersion = "0.1.0";   // Our tests are designed for this version
 
     //==========================================================================
@@ -82,8 +82,7 @@
       let expected1 = "https://comps.idmod.org";
       let expected2 = `${window.location.protocol}`;
       assert.false(params.has("baseUrl"), "Test window.search doesn't have baseUrl");
-      assert.true(kLocalhostAliases.indexOf(window.location.host) !== -1,
-        "Test running on localhost");
+      assert.true(isLocalhost(window.location.host), "Test running on localhost");
       let baseUrl = MicroCOMPS.findBaseUrl();
       assert.ok(baseUrl === expected1 || baseUrl === expected2, "Test default baseUrl");
       onDone();
