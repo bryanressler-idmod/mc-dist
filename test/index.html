@@ -44,7 +44,7 @@
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
         spinnerUp, spinnerDown, inIFrame, stopEvent}
       //from "./microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@0.1.0-6344942e/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest";
 
@@ -57,6 +57,8 @@
         title: "Authenticated QUnit test pages",
         showRunAllButton: true,
         pages: [
+          { url: "qunit/TestUtils.html",
+            desc: "Tests the library utility functions" },
           { url: "qunit/TestDefaultLogger.html",
             desc: "Test the DefaultLogger class" },
           { url: "qunit/TestBodyLogger.html",
@@ -79,8 +81,6 @@
             desc: "Test the base library API" },
           { url: "qunit/TestSpinner.html",
             desc: "Tests the IDM spinner" },
-          { url: "qunit/TestUtils.html",
-            desc: "Tests the library utility functions" },
         ],
       },
       // adhoc: {
