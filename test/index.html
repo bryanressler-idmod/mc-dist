@@ -44,7 +44,7 @@
     import {logInfo, logError, humanizeToken, MicroCOMPS, makeSpinnerSpan,
         spinnerUp, spinnerDown, inIFrame, stopEvent}
       //from "./microcomps.js";
-      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest/js/microcomps.js";
+      from "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@main/js/microcomps.js";
     const kBaseUrl = "https://comps-dev.idmod.org";
     const kCdnBase = "https://cdn.jsdelivr.net/gh/bryanressler-idmod/mc-dist@latest";
 
@@ -57,8 +57,6 @@
         title: "Authenticated QUnit test pages",
         showRunAllButton: true,
         pages: [
-          { url: "qunit/TestUtils.html",
-            desc: "Tests the library utility functions" },
           { url: "qunit/TestDefaultLogger.html",
             desc: "Test the DefaultLogger class" },
           { url: "qunit/TestBodyLogger.html",
@@ -81,6 +79,8 @@
             desc: "Test the base library API" },
           { url: "qunit/TestSpinner.html",
             desc: "Tests the IDM spinner" },
+          { url: "qunit/TestUtils.html",
+            desc: "Tests the library utility functions" },
         ],
       },
       // adhoc: {
@@ -191,18 +191,6 @@
       }
 
       //------------------------------------------------------------------------
-      checkForComps() {
-        window.addEventListener("message", event => {
-          console.log("Message callback", event);
-        });
-        parent.postMessage({
-          getter: "comps.modules.explore.getTokenAsync",
-          args: null,
-          observer: window.location.href
-        }, "*");
-      }
-
-      //------------------------------------------------------------------------
       render() {
         let self = this;
         spinnerUp();
@@ -238,7 +226,7 @@
             list.innerHTML = section.pages.reduce((accum, page) => {
               accum +=
                 `<li>` +
-                  `<a href="${cdn ? kCdnBase + "/test/" : ""}${page.url}" ` +
+                  `<a href='${cdn ? kCdnBase + "/test/" : ""}${page.url}' ` +
                       `target='_blank'>` +
                     `${self.basename(page.url)}</a> - ` +
                 `${page.desc}</li>`;
